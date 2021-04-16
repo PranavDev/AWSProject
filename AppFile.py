@@ -1,7 +1,7 @@
 # Project01: ENTS649B-AWS-Netflix
 # Author: Pranav H. Deo
-# Date: 03/21/21
-# Version: v1.0
+# Date: 04/15/21
+# Version: v1.1
 
 # Code Description:
 # Compute: Amazon EC2
@@ -23,6 +23,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config.from_mapping(SECREY_KEY='dev')
 app.secret_key = 'Phd240997#'
+start_tag = True
 '''
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -62,6 +63,12 @@ def HomePage():
 @app.route('/Login', methods=['GET', 'POST'])
 def Login():
     if request.method == 'POST':
+        global start_tag
+        if start_tag is True:
+            cursor = conn.cursor()
+            create_table = "create table Netflix_Users (username varchar(100),email varchar(100),password varchar(100))"
+            cursor.execute(create_table)
+            start_tag = False
         session.pop('user_email', None)
         user_email = request.form['email']
         user_password = request.form['password']
@@ -82,6 +89,12 @@ def Login():
 @app.route('/Register', methods=['GET', 'POST'])
 def Register():
     if request.method == 'POST':
+        global start_tag
+        if start_tag is True:
+            cursor = conn.cursor()
+            create_table = "create table Netflix_Users (username varchar(100),email varchar(100),password varchar(100))"
+            cursor.execute(create_table)
+            start_tag = False
         user_name = request.form['username']
         user_em = request.form['email']
         user_pass = request.form['password']
