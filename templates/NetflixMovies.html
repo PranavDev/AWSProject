@@ -1,0 +1,172 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Netflix: Movies</title>
+    <link rel="icon" href ="/static/Images/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+      .navbar {
+        background-color: red;
+        overflow: hidden;
+      }
+
+      /* Style the links inside the navigation bar */
+      .navbar a {
+        float: left;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+      }
+
+      /* Change the color of links on hover */
+      .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+
+      /* Add a color to the active/current link */
+      .navbar a.active {
+        background-color: #4CAF50;
+        color: white;
+      }
+
+    .header
+    {
+        border-radius: 8px;
+        background: red;
+        text-align: center;
+        font-size: 40px;
+        padding: 10px;
+    }
+
+    .head{
+      padding: 10px;
+      font-size: 30px;
+      text-align: center;
+      background: green;
+      border-radius: 8px;
+    }
+
+    a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    img {
+      width: 33%;
+      height: 90%;
+      float: left;
+      max-width: 335px;
+    }
+
+    body{
+      background-color: black;
+    }
+    .gallery{
+      display: flex;
+      width: 1100px;
+      margin: auto;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    figure{
+      height: 300px;
+      width: 200px;
+      margin: 8px 0;
+      border: 1px solid red;
+      padding: 10px;
+      box-sizing: border-box;
+      background-color: black;
+      box-shadow: 5px 5px red;
+    }
+    figure img{
+      width: 100%;
+    }
+    figure figcaption{
+      text-align: center;
+      padding: 8px 2px;
+      font-size: 25px;
+      color: green;
+    }
+    figure img:hover{
+       position:relative;
+       top:-25px;
+       left:-35px;
+       width:500px;
+       height:auto;
+       display:block;
+       z-index:999;
+    }
+</style>
+<body bgcolor="black" text="white">
+    <div class="navbar" id="Topnav">
+        <a href="{{url_for('UserHome')}}" style="font-size: 25px"><img src="/static/Images/favicon.ico" style="height: 35px; width: 30px;"></a>
+        <a href="{{url_for('MyAccount')}}" style="font-size: 25px">My Account</a>
+    </div>
+    <h2 class="head">Infinity Catalogue</h2>
+    <div class="gallery">
+          <figure>
+                <img src="/static/Images/div.jpg">
+                <figcaption>Divergent</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/jaws.jpg">
+                <figcaption>Jaws</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/hp.jpg">
+                <figcaption>Harry Potter</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/dk.jpg">
+                <figcaption>Dark Knight</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/3i.jpg">
+                <figcaption>3 Idiots</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/anabelle.jpg">
+                <figcaption>Anabelle</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/thor.jpg">
+                <figcaption>Thor</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/gu.jpg">
+                <figcaption>Grown Ups</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/JL.jpg">
+                <figcaption>Justice League</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/sw.jpg">
+                <figcaption>Star Wars</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/WW.jpg">
+                <figcaption>Wonder Woman</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/pj.jpg">
+                <figcaption>Percy Jackson</figcaption>
+          </figure>
+
+          <figure>
+                <img src="/static/Images/av.jpg">
+                <figcaption>Avatar</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/avengers.jpg">
+                <figcaption>Avengers</figcaption>
+          </figure>
+          <figure>
+                <img src="/static/Images/c2.jpg">
+                <figcaption>Conjuring 2</figcaption>
+          </figure>
+    </div>
+</body>
+</html>

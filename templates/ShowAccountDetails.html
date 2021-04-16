@@ -1,0 +1,94 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Netflix: User Account Details</title>
+    <link rel="icon" href ="/static/Images/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+      .navbar {
+        background-color: red;
+        overflow: hidden;
+      }
+
+      /* Style the links inside the navigation bar */
+      .navbar a {
+        float: left;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+      }
+
+      /* Change the color of links on hover */
+      .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+
+      /* Add a color to the active/current link */
+      .navbar a.active {
+        background-color: #4CAF50;
+        color: white;
+      }
+
+    .header
+    {
+        border-radius: 8px;
+        background: red;
+        text-align: center;
+        font-size: 40px;
+        padding: 10px;
+    }
+
+    .head{
+      padding: 10px;
+      font-size: 30px;
+      text-align: center;
+      background: green;
+      border-radius: 8px;
+    }
+
+    a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    body{
+      background-color: black;
+    }
+
+    .container {
+      padding: 40px;
+      background-color: red;
+      box-shadow: 10px 10px white;
+      border-radius: 16px;
+    }
+
+    .myimages {
+        width: 320px;
+        height: 350px;
+        }
+
+</style>
+<body bgcolor="black" text="white">
+    <div class="navbar" id="Topnav">
+        <a href="{{url_for('UserHome')}}" style="font-size: 25px"><img src="/static/Images/favicon.ico" style="height: 35px; width: 30px;"></a>
+        <a href="{{url_for('MyAccount')}}" style="font-size: 25px">My Account</a>
+    </div>
+    <h2 class="head">User Profile Details</h2>
+    <table align="center" class="container">
+        <tr>
+            <td><img class="myimages" src={{ img }}></td>
+        </tr>
+        <tr>
+            <td align="center"><h2>Username: {{ usern }}</h2></td>
+        </tr>
+        <tr>
+            <td align="center"><h2>Email: {{ email }}</h2></td>
+        </tr>
+        <tr>
+            <td align="center"><h2>Password: {{ password }}</h2></td>
+        </tr>
+    </table>
+</body>
+</html>

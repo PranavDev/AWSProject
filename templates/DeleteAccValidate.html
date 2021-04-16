@@ -1,0 +1,166 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Netflix: Delete Account</title>
+    <link rel="icon" href ="/static/Images/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .navbar {
+      background-color: red;
+      overflow: hidden;
+    }
+
+    /* Style the links inside the navigation bar */
+    .navbar a {
+      float: left;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+
+    /* Change the color of links on hover */
+    .navbar a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    /* Add a color to the active/current link */
+    .navbar a.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    /* Full-width input fields */
+    input[type=text], input[type=password] {
+      width: 100%;
+      padding: 15px;
+      margin: 5px 0 22px 0;
+      display: inline-block;
+      border: None;
+      background: #f1f1f1;
+    }
+
+    input[type=text]:focus, input[type=password]:focus {
+      background-color: #ddd;
+      outline: none;
+    }
+
+    .header{
+      padding: 10px;
+      font-size: 30px;
+      text-align: center;
+      background: green;
+      border-radius: 8px;
+    }
+
+    .form-wrap{
+        width: 600px;
+        height: 650px;
+        background: opaque;
+        padding: 30px 80px;
+        box-sizing: border-box;
+        border-radius: 25px;
+        box-shadow: 8px 8px 20px #000000;
+        position: fixed;
+        left: 50%;
+        top: 60%;
+        transform: translate(-50%, -56%);
+        font-size: 20px;
+    }
+
+    .container {
+      padding: 16px;
+      background-color: opaque;
+    }
+
+    .registerbtn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 16px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      opacity: 0.9;
+    }
+
+    .registerbtn:hover {
+      opacity: 1;
+    }
+
+    *{
+      box-sizing: border-box;
+    }
+
+    a {
+      color: dodgerblue;
+    }
+
+    /* Set a grey background color and center the text of the "sign in" section */
+    .signin {
+      background-color: opaque;
+      text-align: center;
+    }
+</style>
+<script>
+  function formValidation()
+  {
+    var fname = document.forms["LogInForm"]["first_name"].value;
+    var email = document.forms["LogInForm"]["eid"].value;
+
+    var alpha = /^[a-zA-Z]+$/;
+
+    if(fname=="")
+    {
+      alert("First Name Not Entered");
+      return false;
+    }
+    else {
+      if(!fname.match(alpha))
+      {
+        alert("Invalid First Name");
+        return false;
+      }
+    }
+
+    var x = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if(email=="")
+    {
+      alert("Email-ID Not Entered");
+      return false;
+    }
+    else {
+      if (!email.match(x))
+      {
+        alert("You have entered an invalid email address!")
+        return false;
+      }
+    }
+  }
+</script>
+
+<body bgcolor="black" text="white">
+    <div class="navbar" id="Topnav">
+        <a href="{{url_for('UserHome')}}" style="font-size: 25px"><img src="/static/Images/favicon.ico" style="height: 35px; width: 30px;"></a>
+        <a href="{{url_for('MyAccount')}}" style="font-size: 25px">My Account</a>
+    </div>
+
+  <h2 class="header">Delete Account Verification</h2>
+
+  <form action="/DeleteAccValidate" method="post" enctype="multipart/form-data" class="form-wrap">
+    <div class="container">
+      <h1 align="center">Delete Account</h1>
+      <hr>
+
+      <label for="email"><b>Email</b></label>
+      <input type="text" placeholder="Enter Email" name="email" id="email" required>
+
+      <button type="submit" class="registerbtn" style="font-size:20px">Validate</button>
+    </div>
+
+  </form>
+
+  <img src="/static/Images/nf.png" style="margin: 2px 155px; height: 1110px; width: 1110px;">
+</body>
+</html>

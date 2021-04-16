@@ -1,0 +1,658 @@
+# ----------------------------------------------------------------------------------------------------------------------
+# AWS CloudFormation Template
+# ----------------------------------------------------------------------------------------------------------------------
+AWSTemplateFormatVersion: '2010-09-09'
+Description: MyApp template
+# ----------------------------------------------------------------------------------------------------------------------
+# Parameters Section
+# ----------------------------------------------------------------------------------------------------------------------
+Parameters:
+  # ------------ VPC CIDR ------------
+  VPCCIDR:
+    Description: MyApp VPC
+    Type: String
+    Default: 10.192.0.0/16
+
+  # ------------ 1st Group ------------
+  PublicSubnet1CIDR:
+    Description: MyApp Public Subnet 1
+    Type: String
+    Default: 10.192.1.0/24
+
+  PrivateSubnet1CIDR:
+    Description: MyApp Private Subnet 1
+    Type: String
+    Default: 10.192.2.0/24
+
+  PrivateSubnet2CIDR:
+    Description: MyApp Private Subnet 2
+    Type: String
+    Default: 10.192.3.0/24
+
+  # ------------ 2nd Group ------------
+  PublicSubnet2CIDR:
+    Description: MyApp Public Subnet 2
+    Type: String
+    Default: 10.192.4.0/24
+
+  PrivateSubnet3CIDR:
+    Description: MyApp Private Subnet 3
+    Type: String
+    Default: 10.192.5.0/24
+
+  PrivateSubnet4CIDR:
+    Description: MyApp Private Subnet 4
+    Type: String
+    Default: 10.192.6.0/24
+
+  # ------------ EC2 Config ------------
+  KeyName:
+    Description: MyApp-PranavDeo
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: MyApp-PranavDeo
+    ConstraintDescription: MyApp-PranavDeo
+
+  InstanceType:
+    Description: EC2 Instance
+    Type: String
+    Default: t2.micro
+
+  AmiId:
+    Description: Ubuntu 20.04 LTS AMI Id
+    Type: String
+    Default: ami-042e8287309f5df03
+
+  SSHLocation:
+    Description: Addresses from where one could get into an instance
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be of a valid IP CIDR range of the form x.x.x.x/x.
+
+  # ------------ DB Config ------------
+  DBName:
+    Default: netflix
+    Description: MyRDSMySQLDB
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern : '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
+
+  DBInstanceID01:
+    Default: netflixDB01
+    Description: My database instance
+    Type: String
+    MinLength: 1
+    MaxLength: 63
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
+
+  DBInstanceID02:
+    Default: netflixDB02
+    Description: My database instance
+    Type: String
+    MinLength: 1
+    MaxLength: 63
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
+# ----------------------------------------------------------------------------------------------------------------------
+# Resources Section
+# ----------------------------------------------------------------------------------------------------------------------
+Resources:
+# ----------------------------------- WEB SECURITY GROUPS, IAM ROLE & INSTANCE PROFILE ---------------------------------
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      GroupDescription: SSH port 22; TCP port 80, 3306 and 5000
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref 'SSHLocation'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref 'SSHLocation'
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          CidrIp: !Ref 'SSHLocation'
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: !Ref 'SSHLocation'
+      Tags:
+        - Key: Name
+          Value: MyApp-WebServerSecurityGroup
+
+  MyAppIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyApp-EC2-S3-RDS
+      Description: IAM role for EC2, S3 and RDS Access
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - 'ec2.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Path: '/'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::111330348485:policy/MyApp-Policy'
+
+  MyAppInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: '/'
+      Roles:
+        -
+          Ref: 'MyAppIAMRole'
+# --------------------------------------------- VPC, PUBLIC & PRIVATE SUBNETS ------------------------------------------
+  MyAppVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref 'VPCCIDR'
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: MyApp-VPC
+
+  MyAppPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      AvailabilityZone: "us-east-1a"
+      CidrBlock: !Ref 'PublicSubnet1CIDR'
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MyApp-PublicSubnet1
+
+  MyAppPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      AvailabilityZone: "us-east-1b"
+      CidrBlock: !Ref 'PublicSubnet2CIDR'
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MyApp-PublicSubnet2
+
+  MyAppPrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      AvailabilityZone: "us-east-1a"
+      CidrBlock: !Ref 'PrivateSubnet1CIDR'
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MyApp-PrivateSubnet1
+
+  MyAppPrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      AvailabilityZone: "us-east-1a"
+      CidrBlock: !Ref 'PrivateSubnet2CIDR'
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MyApp-PrivateSubnet2
+
+  MyAppPrivateSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      AvailabilityZone: "us-east-1b"
+      CidrBlock: !Ref 'PrivateSubnet3CIDR'
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MyApp-PrivateSubnet3
+
+  MyAppPrivateSubnet4:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      AvailabilityZone: "us-east-1b"
+      CidrBlock: !Ref 'PrivateSubnet4CIDR'
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MyApp-PrivateSubnet4
+# --------------------------------------------- INTERNET GATEWAY & ROUTES ----------------------------------------------
+  MyAppInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MyApp-InternetGateway
+
+  MyAppVPCGatewayAtt:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref 'MyAppInternetGateway'
+      VpcId: !Ref 'MyAppVPC'
+
+  MyAppPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      Tags:
+        - Key: Name
+          Value: MyApp-Public-RouteTable
+
+  MyAppPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: MyAppVPCGatewayAtt
+    Properties:
+      RouteTableId: !Ref 'MyAppPublicRouteTable'
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref 'MyAppInternetGateway'
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'MyAppPublicSubnet1'
+      RouteTableId: !Ref 'MyAppPublicRouteTable'
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'MyAppPublicSubnet2'
+      RouteTableId: !Ref 'MyAppPublicRouteTable'
+# --------------------------------------- LAUNCH TEMPLATE & AUTO-SCALING GROUPS ----------------------------------------
+  MyAppLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: MyAppLT
+      LaunchTemplateData:
+        IamInstanceProfile:
+          Arn: !GetAtt
+            - MyAppInstanceProfile
+            - Arn
+        DisableApiTermination: true
+        ImageId: !Ref 'AmiId'
+        InstanceType: !Ref 'InstanceType'
+        KeyName: !Ref 'KeyName'
+        SecurityGroupIds:
+          - !GetAtt WebServerSecurityGroup.GroupId
+        BlockDeviceMappings:
+          - DeviceName: /dev/sdm
+            Ebs:
+              VolumeType: io1
+              Encrypted: false
+              Iops: 200
+              DeleteOnTermination: true
+              VolumeSize: 20
+        Monitoring:
+          Enabled: true
+        UserData: !Base64 |
+            #!/bin/bash
+            apt-get update
+            apt-get -y upgrade
+            apt install -y apache2
+            apt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring
+            service apache2 restart
+            apt-get install -y mysql-server
+            apt install -y apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+            apt-get update
+            apt install -y docker-ce
+            docker pull pdeo2020/awsproject:v06
+            docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: MyApp-EC2-LaunchTemplate
+
+  MyAppASG01:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: MyAppASG01
+      AvailabilityZones:
+        - us-east-1a
+      VPCZoneIdentifier:
+        - !Ref 'MyAppPublicSubnet1'
+      MinSize: "1"
+      MaxSize: "3"
+      DesiredCapacity: "2"
+      HealthCheckGracePeriod: 300
+      LaunchTemplate:
+        LaunchTemplateId: !Ref 'MyAppLaunchTemplate'
+        Version: !GetAtt MyAppLaunchTemplate.LatestVersionNumber
+      MetricsCollection:
+        - Granularity: "1Minute"
+          Metrics:
+            - "GroupMinSize"
+            - "GroupMaxSize"
+      Tags:
+        - Key: Name
+          Value: MyApp-EC2-ASG01
+          PropagateAtLaunch: "true"
+
+  MyAppASG02:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: MyAppASG02
+      AvailabilityZones:
+        - us-east-1b
+      VPCZoneIdentifier:
+        - !Ref 'MyAppPublicSubnet2'
+      MinSize: "1"
+      MaxSize: "3"
+      DesiredCapacity: "2"
+      HealthCheckGracePeriod: 300
+      LaunchTemplate:
+        LaunchTemplateId: !Ref 'MyAppLaunchTemplate'
+        Version: !GetAtt MyAppLaunchTemplate.LatestVersionNumber
+      MetricsCollection:
+        - Granularity: "1Minute"
+          Metrics:
+            - "GroupMinSize"
+            - "GroupMaxSize"
+      Tags:
+        - Key: Name
+          Value: MyApp-EC2-ASG02
+          PropagateAtLaunch: "true"
+# ------------------------------------- RDS DB, SECURITY GROUPS & DB SUBNET GROUPS -------------------------------------
+  MyAppRDSSG:
+    Type: AWS::RDS::DBSecurityGroup
+    Properties:
+      GroupDescription: Security Group for RDS Instance
+      EC2VpcId: !Ref 'MyAppVPC'
+      DBSecurityGroupIngress:
+        EC2SecurityGroupId:
+          Ref: WebServerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: MyApp-RDS-SG
+
+  MyAppDBSubnetGroup01:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet Group 01 for RDS-MySQL database
+      SubnetIds:
+        - !Ref 'MyAppPrivateSubnet1'
+        - !Ref 'MyAppPrivateSubnet3'
+      Tags:
+        - Key: Name
+          Value: MyApp-RDS-SubnetGroup01
+
+  MyAppDBSubnetGroup02:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet Group 02 for RDS-MySQL database
+      SubnetIds:
+        - !Ref 'MyAppPrivateSubnet2'
+        - !Ref 'MyAppPrivateSubnet4'
+      Tags:
+        - Key: Name
+          Value: MyApp-RDS-SubnetGroup02
+
+  MyAppDatabase01:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref 'DBName'
+      DBInstanceIdentifier: !Ref 'DBInstanceID01'
+      MultiAZ: true
+      DBSubnetGroupName: !Ref 'MyAppDBSubnetGroup01'
+      PubliclyAccessible: true
+      AllocatedStorage: '5'
+      DBInstanceClass: db.t2.micro
+      Engine: MySQL
+      StorageType: io1
+      Port: 3306
+      MonitoringInterval: '60'
+      MonitoringRoleArn: 'arn:aws:iam::111330348485:role/rds-monitoring-role'
+      MasterUsername: admin
+      MasterUserPassword: admin123
+      DBSecurityGroups: [!Ref 'MyAppRDSSG']
+      Tags:
+        -
+          Key: Name
+          Value: MyApp-RDS01
+
+  MyAppDatabase02:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref 'DBName'
+      DBInstanceIdentifier: !Ref 'DBInstanceID02'
+      MultiAZ: true
+      DBSubnetGroupName: !Ref 'MyAppDBSubnetGroup02'
+      PubliclyAccessible: true
+      AllocatedStorage: '5'
+      DBInstanceClass: db.t2.micro
+      Engine: MySQL
+      StorageType: io1
+      Port: 3306
+      MonitoringInterval: '60'
+      MonitoringRoleArn: 'arn:aws:iam::111330348485:role/rds-monitoring-role'
+      MasterUsername: admin
+      MasterUserPassword: admin123
+      DBSecurityGroups: [ !Ref 'MyAppRDSSG' ]
+      Tags:
+        - Key: Name
+          Value: MyApp-RDS02
+# -------------------------------- Application Load Balancer, Target Groups & Listeners --------------------------------
+  MyAppALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for Netflix ALB
+      GroupName: MyApp-Netflix-ALB-SG
+      Tags:
+        -
+          Key: Name
+          Value: MyApp-Netflix-ALB-SG
+      VpcId: !Ref 'MyAppVPC'
+      SecurityGroupIngress:
+        -
+          CidrIp: '0.0.0.0/0'
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        -
+          CidrIp: '0.0.0.0/0'
+          FromPort: 5000
+          IpProtocol: tcp
+          ToPort: 5000
+
+  MyAppALBTG:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/"
+      Port: 5000
+      Protocol: HTTP
+      HealthCheckPort: traffic-port
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 2
+      TargetType: instance
+      Matcher:
+        HttpCode: 200
+      HealthyThresholdCount: 5
+      VpcId: !Ref 'MyAppVPC'
+      Name: MyAppALBTG
+      HealthCheckEnabled: true
+      TargetGroupAttributes:
+        - Key: "stickiness.enabled"
+          Value: "false"
+        - Key: "deregistration_delay.timeout_seconds"
+          Value: "300"
+        - Key: "stickiness.type"
+          Value: "lb_cookie"
+        - Key: "stickiness.lb_cookie.duration_seconds"
+          Value: "86400"
+        - Key: "slow_start.duration_seconds"
+          Value: "0"
+        - Key: "load_balancing.algorithm.type"
+          Value: "round_robin"
+
+  MyAppALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: MyApp-Netflix-ALB
+      Scheme: internet-facing
+      Type: application
+      Subnets:
+        - !Ref 'MyAppPublicSubnet1'
+        - !Ref 'MyAppPublicSubnet2'
+      SecurityGroups:
+        - !Ref 'MyAppALBSecurityGroup'
+      IpAddressType: ipv4
+      Tags:
+        - Key: Name
+          Value: MyApp-Netflix-ALB
+      LoadBalancerAttributes:
+        - Key: "access_logs.s3.enabled"
+          Value: "false"
+        - Key: "idle_timeout.timeout_seconds"
+          Value: "60"
+        - Key: "deletion_protection.enabled"
+          Value: "false"
+        - Key: "routing.http2.enabled"
+          Value: "true"
+        - Key: "routing.http.drop_invalid_header_fields.enabled"
+          Value: "false"
+
+  MyAppHTTPListener01:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref 'MyAppALB'
+      Port: 5000
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref 'MyAppALBTG'
+
+  MyAppHTTPListener02:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref 'MyAppALB'
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref 'MyAppALBTG'
+# ----------------------------------------------------------------------------------------------------------------------
+# Output Section
+# ----------------------------------------------------------------------------------------------------------------------
+Outputs:
+  MyWebServerSecGroup:
+    Description: Reference to the created WebServerSecurityGroup
+    Value: !Ref 'WebServerSecurityGroup'
+
+  MyAppIAMRole:
+    Description: Reference to the created IAM Role
+    Value: !Ref 'MyAppIAMRole'
+
+  MyAppVPC:
+    Description: Reference to the created VPC
+    Value: !Ref 'MyAppVPC'
+
+  MyAppPublicSubnet1:
+    Description: Reference to the public subnet 01
+    Value: !Ref 'MyAppPublicSubnet1'
+
+  MyAppPublicSubnet2:
+    Description: Reference to the public subnet 02
+    Value: !Ref 'MyAppPublicSubnet2'
+
+  MyAppPrivateSubnet1:
+    Description: Reference to the private subnet 01
+    Value: !Ref 'MyAppPrivateSubnet1'
+
+  MyAppPrivateSubnet2:
+    Description: Reference to the private subnet 02
+    Value: !Ref 'MyAppPrivateSubnet2'
+
+  MyAppPrivateSubnet3:
+    Description: Reference to the private subnet 03
+    Value: !Ref 'MyAppPrivateSubnet3'
+
+  MyAppPrivateSubnet4:
+    Description: Reference to the private subnet 04
+    Value: !Ref 'MyAppPrivateSubnet4'
+
+  MyAppIG:
+    Description: Reference to the Internet Gateway
+    Value: !Ref 'MyAppInternetGateway'
+
+  MyAppVPCGateWayAtt:
+    Description: Reference to the VPC Gateway Attachment
+    Value: !Ref 'MyAppVPCGatewayAtt'
+
+  MyAppPublicRouteTable:
+    Description: Reference to the Public Route Table
+    Value: !Ref 'MyAppPublicRouteTable'
+
+  MyAppPublicRoute:
+    Description: Reference to the Public Route Table
+    Value: !Ref 'MyAppPublicRoute'
+
+  PublicSubnet1RouteTableAssociation:
+    Description: Reference to the Public Subnet 1 Route Table Assoc.
+    Value: !Ref 'PublicSubnet1RouteTableAssociation'
+
+  PublicSubnet2RouteTableAssociation:
+    Description: Reference to the Public Subnet 2 Route Table Assoc.
+    Value: !Ref 'PublicSubnet2RouteTableAssociation'
+
+  LaunchTemplate:
+    Description: Reference to the Launch Template
+    Value: !Ref 'MyAppLaunchTemplate'
+
+  MyAppDBSubnetGroup:
+    Description: DB subnet group name
+    Value: !Ref 'MyAppDBSubnetGroup01'
+
+  MyAppLaunchTemplate:
+    Description: Launch Template
+    Value: !Ref 'MyAppLaunchTemplate'
+
+  MyAppASG01:
+    Description: Auto-Scaling Groups
+    Value: !Ref 'MyAppASG01'
+
+  MyAppASG02:
+    Description: Auto-Scaling Groups
+    Value: !Ref 'MyAppASG02'
+
+  MyRDS01:
+    Description: RDS-DB 01
+    Value: !Ref 'MyAppDatabase01'
+
+  MyRDS02:
+    Description: RDS-DB 02
+    Value: !Ref 'MyAppDatabase02'
+
+  ALB:
+    Description: MyApp-Netflix Application Load Balancer
+    Value: !Ref 'MyAppALB'
+
+  ALBUrl:
+    Description: The URL of our Netflix-ALB
+    Value: !GetAtt MyAppALB.DNSName
+
+  ALBTargetGroup:
+    Description: MyApp-Netflix-ALB-TG
+    Value: !Ref 'MyAppALBTG'
+
+  ALBSG:
+    Description: Security group for the ALB
+    Value: !Ref 'MyAppALBSecurityGroup'
+# ----------------------------------------------------------------------------------------------------------------------

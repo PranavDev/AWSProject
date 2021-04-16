@@ -1,0 +1,5 @@
+mysql_host: 'netflixdb01.cm7noqu6gj7y.us-east-1.rds.amazonaws.com'
+mysql_user: 'admin'
+mysql_password: 'admin123'
+mysql_db: 'netflix'
+mysql_port: '3306'

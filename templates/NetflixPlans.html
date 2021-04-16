@@ -1,0 +1,168 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Netflix: Plans</title>
+  <link rel = "icon" href ="/static/Images/favicon.ico" />
+<style>
+.navbar {
+  background-color: red;
+  overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.navbar a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.navbar a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* Add a color to the active/current link */
+.navbar a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.header{
+  padding: 10px;
+  font-size: 30px;
+  text-align: center;
+  background: green;
+  border-radius: 8px;
+}
+
+.buttonStyle
+{
+  background-color: #f44336;
+  border: none;
+  width: 49.5%;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+th
+{
+  padding-top: 7px;
+  padding-left: 125px;
+  color: Orange;
+  font-size: 20px;
+}
+
+tr
+{
+  padding-left: 125px;
+}
+
+td
+{
+  padding-top: 7px;
+  font-size: 20px;
+  color: white;
+  padding-left: 125px;
+}
+
+h1
+{
+  text-align: center;
+  color: red;
+}
+
+.imgStyle
+{
+  margin: 2px 250px;
+}
+</style>
+<body bgcolor="black">
+  <div class="navbar" id="Topnav">
+      <a href="{{url_for('HomePage')}}" style="font-size: 25px" class="button1Style">Home</a>
+      <a href="{{url_for('Login')}}" style="font-size: 25px" class="button1Style">Login</a>
+      <a href="{{url_for('Register')}}" style="font-size: 25px" class="button1Style">Register</a>
+  </div>
+  <h2 class="header">Choose One Plan And Watch Anything On Netflix!</h2>
+  <img src="/static/Images/Netflix.jpg" height="300" width="1430"><br>
+  <table>
+    <th padding="10px">PLANS</th>
+    <th padding="10px">BASIC</th>
+    <th padding="10px">STANDARD</th>
+    <th padding="10px">PREMIUM</th>
+
+    <tr>
+      <td>Monthly Price After Free Month</td>
+      <td><i>$7.99</i></td>
+      <td><i>$9.99</i></td>
+      <td><i>$11.99</i></td>
+    </tr>
+
+    <tr>
+      <td>HD Available</td>
+      <td><i>NO</i></td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+    </tr>
+
+    <tr>
+      <td>ULTRA HD Available</td>
+      <td><i>NO</i></td>
+      <td><i>NO</i></td>
+      <td><i>YES</i></td>
+    </tr>
+
+    <tr>
+      <td>Screens You Can Watch at the same time</td>
+      <td><i>1</i></td>
+      <td><i>2</i></td>
+      <td><i>4</i></td>
+    </tr>
+
+    <tr>
+      <td>HD Available</td>
+      <td><i>NO</i></td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+    </tr>
+
+    <tr>
+      <td>Watch on Laptop,Phones etc</td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+    </tr>
+
+    <tr>
+      <td>Unlimited Movies and TV Shows</td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+    </tr>
+
+    <tr>
+      <td>Cancel Anytime</td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+    </tr>
+
+    <tr>
+      <td>First Month Free</td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+      <td><i>YES</i></td>
+    </tr>
+  </table>
+  <br><br>
+</body>
+</html>

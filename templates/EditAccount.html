@@ -1,0 +1,235 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Netflix: Edit Account</title>
+    <link rel="icon" href ="/static/Images/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .navbar {
+        background-color: red;
+        overflow: hidden;
+    }
+
+    /* Style the links inside the navigation bar */
+    .navbar a {
+      float: left;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+
+    /* Change the color of links on hover */
+    .navbar a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    /* Add a color to the active/current link */
+    .navbar a.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .buttonStyle
+    {
+      background-color: #f44336;
+      border: none;
+      width: 20%;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .header{
+      padding: 10px;
+      font-size: 30px;
+      text-align: center;
+      background: green;
+      border-radius: 8px;
+    }
+
+    .form-wrap{
+        width: 600px;
+        height: 710px;
+        background: opaque;
+        padding: 30px 80px;
+        box-sizing: border-box;
+        border-radius: 25px;
+        box-shadow: 8px 8px 20px #000000;
+        position: fixed;
+        left: 50%;
+        top: 63%;
+        transform: translate(-50%, -56%);
+        font-size: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    /* Add padding to containers */
+    .container {
+      padding: 16px;
+      background-color: opaque;
+    }
+
+    /* Full-width input fields */
+    input[type=text], input[type=password] {
+      width: 100%;
+      padding: 15px;
+      margin: 5px 0 22px 0;
+      display: inline-block;
+      border: none;
+      background: #f1f1f1;
+    }
+
+    input[type=text]:focus, input[type=password]:focus {
+      background-color: #ddd;
+      outline: none;
+    }
+
+    /* Overwrite default styles of hr */
+    hr {
+      border: 1px solid #f1f1f1;
+      margin-bottom: 25px;
+    }
+
+    /* Set a style for the submit button */
+    .registerbtn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 16px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      opacity: 0.9;
+    }
+
+    .registerbtn:hover {
+      opacity: 1;
+    }
+
+    /* Add a blue text color to links */
+    a {
+      color: dodgerblue;
+    }
+
+    /* Set a grey background color and center the text of the "sign in" section */
+    .signin {
+      background-color: opaque;
+      text-align: center;
+    }
+</style>
+<script>
+    function formValidation()
+    {
+      var fname = document.forms["RegisterForm"]["first_name"].value;
+      var lname = document.forms["RegisterForm"]["last_name"].value;
+      var email = document.forms["RegisterForm"]["eid"].value;
+      var cntry = document.forms["RegisterForm"]["country"].value;
+      var payment = document.forms["RegisterForm"]["action"].value;
+      var plan = document.forms["RegisterForm"]["Plan"].value;
+
+      var alpha = /^[a-zA-Z]+$/;
+
+      if(fname=="")
+      {
+        alert("First Name Not Entered");
+        return false;
+      }
+      else {
+        if(!fname.match(alpha))
+        {
+          alert("Invalid First Name");
+          return false;
+        }
+      }
+
+      if(lname=="")
+      {
+        alert("Last Name Not Entered");
+        return false;
+      }
+      else {
+        if(!lname.match(alpha))
+        {
+          alert("Invalid Last Name");
+          return false;
+        }
+      }
+
+      var x = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+      if(email=="")
+      {
+        alert("Email-ID Not Entered");
+        return false;
+      }
+      else {
+        if (!email.match(x))
+        {
+          alert("You have entered an invalid email address!")
+          return false;
+        }
+      }
+
+      if(country=="")
+      {
+        alert("Country Not Entered");
+        return false;
+      }
+
+      if(payment=="")
+      {
+        alert("Payment Not Entered");
+        return false;
+      }
+
+      if(plan=="")
+      {
+        alert("Select A Plan");
+        return false;
+      }
+    }
+</script>
+<body bgcolor="black" text="white">
+    <div class="navbar" id="Topnav">
+        <a href="{{url_for('UserHome')}}" style="font-size: 25px"><img src="/static/Images/favicon.ico" style="height: 35px; width: 30px;"></a>
+        <a href="{{url_for('MyAccount')}}" style="font-size: 25px">My Account</a>
+    </div>
+
+    <h2 class="header">Update Account Details? Update!</h2>
+
+    <form action="/EditAccount" method="post" enctype="multipart/form-data" class="form-wrap">
+      <div class="container">
+        <h1 align="center">Update My Account</h1>
+        <hr>
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Username" name="username" id="username" required>
+
+        <label for="email"><b>Email</b></label>
+        <input type="text" placeholder="Enter Email" name="email" id="email" required>
+
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" id="password" required>
+        <hr>
+        <p>* Update Cannot Be Reverted! <a href="#">Terms & Privacy</a>.</p>
+
+        <button type="submit" class="registerbtn" style="font-size:20px">Update Account</button>
+      </div>
+
+      <div class="container signin">
+        <p>Cancel Update? <a href="{{url_for('MyAccount')}}">Cancel</a>.</p>
+      </div>
+    </form>
+
+  <img src="/static/Images/nf.png" style="margin: 2px 155px; height: 1110px; width: 1110px;">
+</body>
+</html>
