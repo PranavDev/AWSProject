@@ -23,7 +23,6 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config.from_mapping(SECREY_KEY='dev')
 app.secret_key = 'Phd240997#'
-start_tag = True
 '''
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -63,15 +62,16 @@ def HomePage():
 @app.route('/Login', methods=['GET', 'POST'])
 def Login():
     if request.method == 'POST':
-        global start_tag
-        if start_tag is True:
-            cursor = conn.cursor()
-            create_table = "create table Netflix_Users (username varchar(100),email varchar(100),password varchar(100))"
-            cursor.execute(create_table)
-            start_tag = False
         session.pop('user_email', None)
         user_email = request.form['email']
         user_password = request.form['password']
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM information_schema.tables WHERE table_name = "Netflix_Users"')
+        if cur.fetchone() is None:
+            create_table = "create table Netflix_Users (username varchar(100),email varchar(100),password varchar(100))"
+            cur.execute(create_table)
+            conn.commit()
+            cur.close()
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM Netflix_Users WHERE email = % s AND password = % s;', (user_email, user_password))
         if cursor.fetchone() is not None:
@@ -89,26 +89,27 @@ def Login():
 @app.route('/Register', methods=['GET', 'POST'])
 def Register():
     if request.method == 'POST':
-        global start_tag
-        if start_tag is True:
-            cursor = conn.cursor()
-            create_table = "create table Netflix_Users (username varchar(100),email varchar(100),password varchar(100))"
-            cursor.execute(create_table)
-            start_tag = False
         user_name = request.form['username']
         user_em = request.form['email']
         user_pass = request.form['password']
         profile_img = request.files['file']
         filename = secure_filename(profile_img.filename)
         profile_img.save('./Downloads/' + filename)
-        s3_client = boto3.client('s3')
-        s3_client.upload_file(Bucket=BUCKET_NAME, Filename='./Downloads/' + filename,
-                              Key='Profile_Image_Uploads/' + user_em.partition('@')[0] + '.jpg')
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM information_schema.tables WHERE table_name = "Netflix_Users"')
+        if cur.fetchone() is None:
+            create_table = "create table Netflix_Users (username varchar(100),email varchar(100),password varchar(100))"
+            cur.execute(create_table)
+            conn.commit()
+            cur.close()
         cur = conn.cursor()
         cur.execute("INSERT INTO Netflix_Users(username, email, password) VALUES (%s, %s, %s)",
                     (user_name, user_em, user_pass))
         conn.commit()
         cur.close()
+        s3_client = boto3.client('s3')
+        s3_client.upload_file(Bucket=BUCKET_NAME, Filename='./Downloads/' + filename,
+                              Key='Profile_Image_Uploads/' + user_em.partition('@')[0] + '.jpg')
         # Send_Email(user_em, 'Register')
         return render_template('Login.html')
     else:

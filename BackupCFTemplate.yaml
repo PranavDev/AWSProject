@@ -334,6 +334,8 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref 'MyAppLaunchTemplate'
         Version: !GetAtt MyAppLaunchTemplate.LatestVersionNumber
+      TargetGroupARNs:
+        - !Ref 'MyAppALBTG'
       MetricsCollection:
         - Granularity: "1Minute"
           Metrics:
@@ -359,6 +361,8 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref 'MyAppLaunchTemplate'
         Version: !GetAtt MyAppLaunchTemplate.LatestVersionNumber
+      TargetGroupARNs:
+        - !Ref 'MyAppALBTG'
       MetricsCollection:
         - Granularity: "1Minute"
           Metrics:
