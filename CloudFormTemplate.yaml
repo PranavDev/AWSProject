@@ -98,10 +98,63 @@ Parameters:
     MaxLength: 63
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
     ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
+
+  # ------------ S3 BUCKET ------------
+  MyBucketName:
+    Type: String
+    Description: AWS Bucket Name
+    Default: netflix-aws-bucket02
+
+  # ------------ ACCOUNT & BILLING ------------
+  BillingThreshold:
+    Type: Number
+    Description: The max value in $ for the Bill
+    Default: 2
+
+  AccountHolder:
+    Type: String
+    Description: The Account Holder Name
+    Default: PranavHDeo
+
+  AccHolderEmailID:
+    Type: String
+    Description: The Account Holder's Email Address
+    Default: phd24@umd.edu
 # ----------------------------------------------------------------------------------------------------------------------
 # Resources Section
 # ----------------------------------------------------------------------------------------------------------------------
 Resources:
+# ------------------------------------------- NACL, In-Bound & Out-Bound Rules -----------------------------------------
+  InboundRule01:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Fn::GetAtt:
+          - MyAppVPC
+          - DefaultNetworkAcl
+      RuleNumber: 105
+      Protocol: 6
+      RuleAction: allow
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 5000
+        To: 5000
+
+  InboundRule02:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Fn::GetAtt:
+          - MyAppVPC
+          - DefaultNetworkAcl
+      RuleNumber: 110
+      Protocol: 6
+      RuleAction: allow
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 80
+        To: 80
+
 # ----------------------------------- WEB SECURITY GROUPS, IAM ROLE & INSTANCE PROFILE ---------------------------------
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -154,7 +207,8 @@ Resources:
       Roles:
         -
           Ref: 'MyAppIAMRole'
-# --------------------------------------------- VPC, PUBLIC & PRIVATE SUBNETS ------------------------------------------
+
+# --------------------------------------- VPC, PUBLIC-PRIVATE SUBNETS & ASSOCIATION ------------------------------------
   MyAppVPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -231,6 +285,7 @@ Resources:
       Tags:
         - Key: Name
           Value: MyApp-PrivateSubnet4
+
 # --------------------------------------------- INTERNET GATEWAY & ROUTES ----------------------------------------------
   MyAppInternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -272,6 +327,7 @@ Resources:
     Properties:
       SubnetId: !Ref 'MyAppPublicSubnet2'
       RouteTableId: !Ref 'MyAppPublicRouteTable'
+
 # --------------------------------------- LAUNCH TEMPLATE & AUTO-SCALING GROUPS ----------------------------------------
   MyAppLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
@@ -372,6 +428,7 @@ Resources:
         - Key: Name
           Value: MyApp-EC2-ASG02
           PropagateAtLaunch: "true"
+
 # ------------------------------------- RDS DB, SECURITY GROUPS & DB SUBNET GROUPS -------------------------------------
   MyAppRDSSG:
     Type: AWS::RDS::DBSecurityGroup
@@ -412,7 +469,7 @@ Resources:
     Properties:
       DBName: !Ref 'DBName'
       DBInstanceIdentifier: !Ref 'DBInstanceID01'
-      MultiAZ: true
+      MultiAZ: false
       DBSubnetGroupName: !Ref 'MyAppDBSubnetGroup01'
       PubliclyAccessible: true
       AllocatedStorage: '5'
@@ -435,7 +492,7 @@ Resources:
     Properties:
       DBName: !Ref 'DBName'
       DBInstanceIdentifier: !Ref 'DBInstanceID02'
-      MultiAZ: true
+      MultiAZ: false
       DBSubnetGroupName: !Ref 'MyAppDBSubnetGroup02'
       PubliclyAccessible: true
       AllocatedStorage: '5'
@@ -451,6 +508,7 @@ Resources:
       Tags:
         - Key: Name
           Value: MyApp-RDS02
+
 # -------------------------------- Application Load Balancer, Target Groups & Listeners --------------------------------
   MyAppALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -552,6 +610,69 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref 'MyAppALBTG'
+
+# -------------------------------------------------- S3 Storage Bucket -------------------------------------------------
+  MyAppS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref 'MyBucketName'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      AccessControl: PublicReadWrite
+      VersioningConfiguration:
+        Status: Suspended
+
+  MyAppBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Sid: S3FullAccess
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:*'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref 'MyAppS3Bucket'
+                - /*
+      Bucket: !Ref 'MyAppS3Bucket'
+
+# ------------------------------------------ CloudWatch Dashboard, Billing Alarm ---------------------------------------
+  MyAppAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - !Ref 'MyAppTopic'
+      AlarmDescription: Billing Alarm for the Account
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+      - Name: Currency
+        Value: USD
+      EvaluationPeriods: 1
+      MetricName: EstimatedCharges
+      Namespace: "AWS/Billing"
+      OKActions:
+        - !Ref 'MyAppTopic'
+      Period: 21600   # 6 hours
+      Statistic: Maximum
+      Threshold: !Ref 'BillingThreshold'
+
+  MyAppTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: !Sub "Billing Alert for ${AccountHolder} Account"
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref 'AccHolderEmailID'
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Output Section
 # ----------------------------------------------------------------------------------------------------------------------
@@ -615,17 +736,13 @@ Outputs:
   PublicSubnet2RouteTableAssociation:
     Description: Reference to the Public Subnet 2 Route Table Assoc.
     Value: !Ref 'PublicSubnet2RouteTableAssociation'
-
-  LaunchTemplate:
-    Description: Reference to the Launch Template
-    Value: !Ref 'MyAppLaunchTemplate'
-
+    
   MyAppDBSubnetGroup:
     Description: DB subnet group name
     Value: !Ref 'MyAppDBSubnetGroup01'
 
   MyAppLaunchTemplate:
-    Description: Launch Template
+    Description: Reference to the Launch Template
     Value: !Ref 'MyAppLaunchTemplate'
 
   MyAppASG01:
@@ -659,4 +776,20 @@ Outputs:
   ALBSG:
     Description: Security group for the ALB
     Value: !Ref 'MyAppALBSecurityGroup'
+
+  MyAppAlarms:
+    Description: Alarms for MyApp
+    Value: !Ref 'MyAppAlarm'
+
+  AccountHolder:
+    Description: Account Holder Name
+    Value: !Ref 'AccountHolder'
+
+  AccountHolderEmailID:
+    Description: Account Holder Email
+    Value: !Ref 'AccHolderEmailID'
+
+  MyAppS3:
+    Description: S3 Resource
+    Value: !Ref 'MyAppS3Bucket'
 # ----------------------------------------------------------------------------------------------------------------------
