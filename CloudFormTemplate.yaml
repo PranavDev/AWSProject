@@ -665,7 +665,7 @@ Resources:
       Namespace: "AWS/Billing"
       OKActions:
         - !Ref 'MyAppTopic'
-      Period: 21600   # 6 hours
+      Period: 3600
       Statistic: Maximum
       Threshold: !Ref 'BillingThreshold'
 
@@ -684,10 +684,10 @@ Resources:
               Namespace: AWS/EC2
               MetricName: CPUUtilization
               Dimensions:
-                - Name: MyAppASG01
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG01'
             Stat: Maximum
-            Period: 300
+            Period: 120
           ReturnData: false
         - Id: memory
           Label: ASG01 - Memory Utilization
@@ -696,10 +696,10 @@ Resources:
               Namespace: CWAgent
               MetricName: mem_used_percent
               Dimensions:
-                - Name: MyAppASG01
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG01'
             Stat: Maximum
-            Period: 300
+            Period: 120
           ReturnData: false
         - Id: network
           Label: ASG01 - Network Utilization
@@ -711,10 +711,10 @@ Resources:
               Namespace: AWS/EC2
               MetricName: NetworkIn
               Dimensions:
-                - Name: MyAppASG01
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG01'
             Stat: Sum
-            Period: 300
+            Period: 120
           ReturnData: false
         - Id: network_out
           MetricStat:
@@ -722,12 +722,13 @@ Resources:
               Namespace: AWS/EC2
               MetricName: NetworkOut
               Dimensions:
-                - Name: MyAppASG01
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG01'
             Stat: Sum
-            Period: 300
+            Period: 120
           ReturnData: false
       ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: missing
       EvaluationPeriods: 1
       DatapointsToAlarm: 1
       Threshold: '1'
@@ -747,10 +748,10 @@ Resources:
               Namespace: AWS/EC2
               MetricName: CPUUtilization
               Dimensions:
-                - Name: MyAppASG02
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG02'
             Stat: Maximum
-            Period: 300
+            Period: 120
           ReturnData: false
         - Id: memory
           Label: ASG02 - Memory Utilization
@@ -759,10 +760,10 @@ Resources:
               Namespace: CWAgent
               MetricName: mem_used_percent
               Dimensions:
-                - Name: MyAppASG02
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG02'
             Stat: Maximum
-            Period: 300
+            Period: 120
           ReturnData: false
         - Id: network
           Label: ASG02 - Network Utilization
@@ -774,10 +775,10 @@ Resources:
               Namespace: AWS/EC2
               MetricName: NetworkIn
               Dimensions:
-                - Name: MyAppASG02
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG02'
             Stat: Sum
-            Period: 300
+            Period: 120
           ReturnData: false
         - Id: network_out
           MetricStat:
@@ -785,18 +786,35 @@ Resources:
               Namespace: AWS/EC2
               MetricName: NetworkOut
               Dimensions:
-                - Name: MyAppASG02
+                - Name: AutoScalingGroupName
                   Value: !Ref 'MyAppASG02'
             Stat: Sum
-            Period: 300
+            Period: 120
           ReturnData: false
       ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: missing
       EvaluationPeriods: 1
       DatapointsToAlarm: 1
       Threshold: '1'
 
+  MyAppALBAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: ALB Scale Up Alarm
+      MetricName: RequestCount
+      Namespace: AWS/ApplicationELB
+      Statistic: Sum
+      Period: 120
+      EvaluationPeriods: 1
+      TreatMissingData: missing
+      Threshold: 20
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt MyAppALB.LoadBalancerFullName
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+
   MyAppTopic:
-    Type: "AWS::SNS::Topic"
+    Type: AWS::SNS::Topic
     Properties:
       DisplayName: !Sub "Billing Alert for ${AccountHolder} Account"
       Subscription:
@@ -910,6 +928,18 @@ Outputs:
   MyAppBillingAlarm:
     Description: Alarms for MyApp
     Value: !Ref 'MyAppBillingAlarm'
+
+  MyAppALBAlarm:
+    Description: Alarm for ALB
+    Value: !Ref 'MyAppALBAlarm'
+
+  MyAppASG01Alarm:
+    Description: Alarm for ASG01
+    Value: !Ref 'MyAppASG01Alarm'
+
+  MyAppASG02Alarm:
+    Description: Alarm for ASG02
+    Value: !Ref 'MyAppASG02Alarm'
 
   AccountHolder:
     Description: Account Holder Name
