@@ -108,7 +108,7 @@ Parameters:
   # ------------ ACCOUNT & BILLING ------------
   BillingThreshold:
     Type: Number
-    Description: The max value in $ for the Bill
+    Description: The max value in $$ for the Bill
     Default: 2
 
   AccountHolder:
@@ -397,6 +397,8 @@ Resources:
           Metrics:
             - "GroupMinSize"
             - "GroupMaxSize"
+            - "GroupDesiredCapacity"
+            - "GroupTotalInstances"
       Tags:
         - Key: Name
           Value: MyApp-EC2-ASG01
@@ -424,6 +426,8 @@ Resources:
           Metrics:
             - "GroupMinSize"
             - "GroupMaxSize"
+            - "GroupDesiredCapacity"
+            - "GroupTotalInstances"
       Tags:
         - Key: Name
           Value: MyApp-EC2-ASG02
@@ -645,14 +649,14 @@ Resources:
       Bucket: !Ref 'MyAppS3Bucket'
 
 # ------------------------------------------ CloudWatch Dashboard, Billing Alarm ---------------------------------------
-  MyAppAlarm:
+  MyAppBillingAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ActionsEnabled: true
       AlarmActions:
         - !Ref 'MyAppTopic'
       AlarmDescription: Billing Alarm for the Account
-      ComparisonOperator: GreaterThanThreshold
+      ComparisonOperator: GreaterThanOrEqualToThreshold
       Dimensions:
       - Name: Currency
         Value: USD
@@ -664,6 +668,132 @@ Resources:
       Period: 21600   # 6 hours
       Statistic: Maximum
       Threshold: !Ref 'BillingThreshold'
+
+  MyAppASG01Alarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: ASG01 CPU, Memory and Network Utilization
+      Metrics:
+        - Id: summary
+          Label: ASG01 - EC2 Utilization
+          Expression: IF(cpu > 70, 1, 0) OR IF(memory > 75, 1, 0) OR IF(network > 80, 1, 0)
+          ReturnData: true
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/EC2
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: MyAppASG01
+                  Value: !Ref 'MyAppASG01'
+            Stat: Maximum
+            Period: 300
+          ReturnData: false
+        - Id: memory
+          Label: ASG01 - Memory Utilization
+          MetricStat:
+            Metric:
+              Namespace: CWAgent
+              MetricName: mem_used_percent
+              Dimensions:
+                - Name: MyAppASG01
+                  Value: !Ref 'MyAppASG01'
+            Stat: Maximum
+            Period: 300
+          ReturnData: false
+        - Id: network
+          Label: ASG01 - Network Utilization
+          Expression: "((network_in+network_out)/300/1000/1000/1000*8)/0.75*100"
+          ReturnData: false
+        - Id: network_in
+          MetricStat:
+            Metric:
+              Namespace: AWS/EC2
+              MetricName: NetworkIn
+              Dimensions:
+                - Name: MyAppASG01
+                  Value: !Ref 'MyAppASG01'
+            Stat: Sum
+            Period: 300
+          ReturnData: false
+        - Id: network_out
+          MetricStat:
+            Metric:
+              Namespace: AWS/EC2
+              MetricName: NetworkOut
+              Dimensions:
+                - Name: MyAppASG01
+                  Value: !Ref 'MyAppASG01'
+            Stat: Sum
+            Period: 300
+          ReturnData: false
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: '1'
+
+  MyAppASG02Alarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: ASG02 CPU, Memory and Network Utilization
+      Metrics:
+        - Id: summary
+          Label: ASG02 - EC2 Utilization
+          Expression: IF(cpu > 70, 1, 0) OR IF(memory > 75, 1, 0) OR IF(network > 80, 1, 0)
+          ReturnData: true
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/EC2
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: MyAppASG02
+                  Value: !Ref 'MyAppASG02'
+            Stat: Maximum
+            Period: 300
+          ReturnData: false
+        - Id: memory
+          Label: ASG02 - Memory Utilization
+          MetricStat:
+            Metric:
+              Namespace: CWAgent
+              MetricName: mem_used_percent
+              Dimensions:
+                - Name: MyAppASG02
+                  Value: !Ref 'MyAppASG02'
+            Stat: Maximum
+            Period: 300
+          ReturnData: false
+        - Id: network
+          Label: ASG02 - Network Utilization
+          Expression: "((network_in+network_out)/300/1000/1000/1000*8)/0.75*100"
+          ReturnData: false
+        - Id: network_in
+          MetricStat:
+            Metric:
+              Namespace: AWS/EC2
+              MetricName: NetworkIn
+              Dimensions:
+                - Name: MyAppASG02
+                  Value: !Ref 'MyAppASG02'
+            Stat: Sum
+            Period: 300
+          ReturnData: false
+        - Id: network_out
+          MetricStat:
+            Metric:
+              Namespace: AWS/EC2
+              MetricName: NetworkOut
+              Dimensions:
+                - Name: MyAppASG02
+                  Value: !Ref 'MyAppASG02'
+            Stat: Sum
+            Period: 300
+          ReturnData: false
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: '1'
 
   MyAppTopic:
     Type: "AWS::SNS::Topic"
@@ -777,9 +907,9 @@ Outputs:
     Description: Security group for the ALB
     Value: !Ref 'MyAppALBSecurityGroup'
 
-  MyAppAlarms:
+  MyAppBillingAlarm:
     Description: Alarms for MyApp
-    Value: !Ref 'MyAppAlarm'
+    Value: !Ref 'MyAppBillingAlarm'
 
   AccountHolder:
     Description: Account Holder Name
