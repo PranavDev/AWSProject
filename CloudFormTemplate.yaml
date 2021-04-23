@@ -648,7 +648,7 @@ Resources:
                 - /*
       Bucket: !Ref 'MyAppS3Bucket'
 
-# ------------------------------------------ CloudWatch Dashboard, Billing Alarm ---------------------------------------
+# ----------------------------------------------------- Billing Alarm --------------------------------------------------
   MyAppBillingAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
