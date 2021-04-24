@@ -522,7 +522,7 @@
                         "Enabled": true
                     },
                     "UserData": {
-                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v07\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07\n"
+                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v06\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06\n"
                     },
                     "TagSpecifications": [
                         {
@@ -573,7 +573,7 @@
                         "Enabled": true
                     },
                     "UserData": {
-                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v07\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07\n"
+                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v06\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06\n"
                     },
                     "TagSpecifications": [
                         {

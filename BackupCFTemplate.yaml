@@ -397,8 +397,8 @@ Resources:
           add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
           apt-get update
           apt install -y docker-ce
-          docker pull pdeo2020/awsproject:v07
-          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07
+          docker pull pdeo2020/awsproject:v06
+          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
         TagSpecifications:
           - ResourceType: instance
             Tags:
@@ -443,8 +443,8 @@ Resources:
           add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
           apt-get update
           apt install -y docker-ce
-          docker pull pdeo2020/awsproject:v07
-          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07
+          docker pull pdeo2020/awsproject:v06
+          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
         TagSpecifications:
           - ResourceType: instance
             Tags:
