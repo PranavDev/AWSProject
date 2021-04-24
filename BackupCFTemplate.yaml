@@ -156,6 +156,20 @@ Resources:
         To: 80
 
 # ----------------------------------- WEB SECURITY GROUPS, IAM ROLE & INSTANCE PROFILE ---------------------------------
+  OnlyBashSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref 'MyAppVPC'
+      GroupDescription: SSH port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref 'SSHLocation'
+      Tags:
+        - Key: Name
+          Value: MyApp-PrivateInstanceSecurityGroup
+
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -165,7 +179,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref 'SSHLocation'
+          CidrIp: '10.192.0.0/16'
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -248,7 +262,7 @@ Resources:
       VpcId: !Ref 'MyAppVPC'
       AvailabilityZone: "us-east-1a"
       CidrBlock: !Ref 'PrivateSubnet1CIDR'
-      MapPublicIpOnLaunch: false
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: MyApp-PrivateSubnet1
@@ -259,7 +273,7 @@ Resources:
       VpcId: !Ref 'MyAppVPC'
       AvailabilityZone: "us-east-1a"
       CidrBlock: !Ref 'PrivateSubnet2CIDR'
-      MapPublicIpOnLaunch: false
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: MyApp-PrivateSubnet2
@@ -270,7 +284,7 @@ Resources:
       VpcId: !Ref 'MyAppVPC'
       AvailabilityZone: "us-east-1b"
       CidrBlock: !Ref 'PrivateSubnet3CIDR'
-      MapPublicIpOnLaunch: false
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: MyApp-PrivateSubnet3
@@ -281,7 +295,7 @@ Resources:
       VpcId: !Ref 'MyAppVPC'
       AvailabilityZone: "us-east-1b"
       CidrBlock: !Ref 'PrivateSubnet4CIDR'
-      MapPublicIpOnLaunch: false
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: MyApp-PrivateSubnet4
@@ -328,11 +342,69 @@ Resources:
       SubnetId: !Ref 'MyAppPublicSubnet2'
       RouteTableId: !Ref 'MyAppPublicRouteTable'
 
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'MyAppPrivateSubnet1'
+      RouteTableId: !Ref 'MyAppPublicRouteTable'
+
+  PrivateSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'MyAppPrivateSubnet3'
+      RouteTableId: !Ref 'MyAppPublicRouteTable'
+
 # --------------------------------------- LAUNCH TEMPLATE & AUTO-SCALING GROUPS ----------------------------------------
-  MyAppLaunchTemplate:
+  MyAppLaunchTemplate01:
     Type: AWS::EC2::LaunchTemplate
     Properties:
-      LaunchTemplateName: MyAppLT
+      LaunchTemplateName: MyAppLT01
+      LaunchTemplateData:
+        IamInstanceProfile:
+          Arn: !GetAtt
+            - MyAppInstanceProfile
+            - Arn
+        DisableApiTermination: true
+        ImageId: !Ref 'AmiId'
+        InstanceType: !Ref 'InstanceType'
+        KeyName: !Ref 'KeyName'
+        SecurityGroupIds:
+          - !GetAtt OnlyBashSecurityGroup.GroupId
+        #BlockDeviceMappings:
+        #  - DeviceName: /dev/sdm
+        #    Ebs:
+        #      VolumeType: io1
+        #      Encrypted: false
+        #      Iops: 200
+        #      DeleteOnTermination: true
+        #      VolumeSize: 20
+        Monitoring:
+          Enabled: true
+        UserData: !Base64 |
+          #!/bin/bash
+          apt-get update
+          apt-get -y upgrade
+          apt install -y apache2
+          apt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring
+          service apache2 restart
+          apt-get install -y mysql-server
+          apt install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+          apt-get update
+          apt install -y docker-ce
+          docker pull pdeo2020/awsproject:v06
+          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: MyApp-EC2-LT01
+
+  MyAppLaunchTemplate02:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: MyAppLT02
       LaunchTemplateData:
         IamInstanceProfile:
           Arn: !GetAtt
@@ -344,36 +416,36 @@ Resources:
         KeyName: !Ref 'KeyName'
         SecurityGroupIds:
           - !GetAtt WebServerSecurityGroup.GroupId
-        BlockDeviceMappings:
-          - DeviceName: /dev/sdm
-            Ebs:
-              VolumeType: io1
-              Encrypted: false
-              Iops: 200
-              DeleteOnTermination: true
-              VolumeSize: 20
+        #BlockDeviceMappings:
+        #  - DeviceName: /dev/sdm
+        #    Ebs:
+        #      VolumeType: io1
+        #      Encrypted: false
+        #      Iops: 200
+        #      DeleteOnTermination: true
+        #      VolumeSize: 20
         Monitoring:
           Enabled: true
         UserData: !Base64 |
-            #!/bin/bash
-            apt-get update
-            apt-get -y upgrade
-            apt install -y apache2
-            apt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring
-            service apache2 restart
-            apt-get install -y mysql-server
-            apt install -y apt-transport-https ca-certificates curl software-properties-common
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-            add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-            apt-get update
-            apt install -y docker-ce
-            docker pull pdeo2020/awsproject:v06
-            docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
+          #!/bin/bash
+          apt-get update
+          apt-get -y upgrade
+          apt install -y apache2
+          apt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring
+          service apache2 restart
+          apt-get install -y mysql-server
+          apt install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+          apt-get update
+          apt install -y docker-ce
+          docker pull pdeo2020/awsproject:v06
+          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
         TagSpecifications:
           - ResourceType: instance
             Tags:
               - Key: Name
-                Value: MyApp-EC2-LaunchTemplate
+                Value: MyApp-EC2-LT02
 
   MyAppASG01:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -388,8 +460,8 @@ Resources:
       DesiredCapacity: "2"
       HealthCheckGracePeriod: 300
       LaunchTemplate:
-        LaunchTemplateId: !Ref 'MyAppLaunchTemplate'
-        Version: !GetAtt MyAppLaunchTemplate.LatestVersionNumber
+        LaunchTemplateId: !Ref 'MyAppLaunchTemplate01'
+        Version: !GetAtt MyAppLaunchTemplate01.LatestVersionNumber
       TargetGroupARNs:
         - !Ref 'MyAppALBTG'
       MetricsCollection:
@@ -401,7 +473,7 @@ Resources:
             - "GroupTotalInstances"
       Tags:
         - Key: Name
-          Value: MyApp-EC2-ASG01
+          Value: MyApp-Public-EC2-ASG01
           PropagateAtLaunch: "true"
 
   MyAppASG02:
@@ -417,8 +489,8 @@ Resources:
       DesiredCapacity: "2"
       HealthCheckGracePeriod: 300
       LaunchTemplate:
-        LaunchTemplateId: !Ref 'MyAppLaunchTemplate'
-        Version: !GetAtt MyAppLaunchTemplate.LatestVersionNumber
+        LaunchTemplateId: !Ref 'MyAppLaunchTemplate01'
+        Version: !GetAtt MyAppLaunchTemplate01.LatestVersionNumber
       TargetGroupARNs:
         - !Ref 'MyAppALBTG'
       MetricsCollection:
@@ -430,7 +502,65 @@ Resources:
             - "GroupTotalInstances"
       Tags:
         - Key: Name
-          Value: MyApp-EC2-ASG02
+          Value: MyApp-Public-EC2-ASG02
+          PropagateAtLaunch: "true"
+
+  MyAppASG03:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: MyAppASG03
+      AvailabilityZones:
+        - us-east-1a
+      VPCZoneIdentifier:
+        - !Ref 'MyAppPrivateSubnet1'
+      MinSize: "1"
+      MaxSize: "3"
+      DesiredCapacity: "2"
+      HealthCheckGracePeriod: 300
+      LaunchTemplate:
+        LaunchTemplateId: !Ref 'MyAppLaunchTemplate02'
+        Version: !GetAtt MyAppLaunchTemplate02.LatestVersionNumber
+      TargetGroupARNs:
+        - !Ref 'MyAppALBTG'
+      MetricsCollection:
+        - Granularity: "1Minute"
+          Metrics:
+            - "GroupMinSize"
+            - "GroupMaxSize"
+            - "GroupDesiredCapacity"
+            - "GroupTotalInstances"
+      Tags:
+        - Key: Name
+          Value: MyApp-Private-EC2-ASG03
+          PropagateAtLaunch: "true"
+
+  MyAppASG04:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: MyAppASG04
+      AvailabilityZones:
+        - us-east-1b
+      VPCZoneIdentifier:
+        - !Ref 'MyAppPrivateSubnet3'
+      MinSize: "1"
+      MaxSize: "3"
+      DesiredCapacity: "2"
+      HealthCheckGracePeriod: 300
+      LaunchTemplate:
+        LaunchTemplateId: !Ref 'MyAppLaunchTemplate02'
+        Version: !GetAtt MyAppLaunchTemplate02.LatestVersionNumber
+      TargetGroupARNs:
+        - !Ref 'MyAppALBTG'
+      MetricsCollection:
+        - Granularity: "1Minute"
+          Metrics:
+            - "GroupMinSize"
+            - "GroupMaxSize"
+            - "GroupDesiredCapacity"
+            - "GroupTotalInstances"
+      Tags:
+        - Key: Name
+          Value: MyApp-Private-EC2-ASG04
           PropagateAtLaunch: "true"
 
 # ------------------------------------- RDS DB, SECURITY GROUPS & DB SUBNET GROUPS -------------------------------------
@@ -485,7 +615,7 @@ Resources:
       MonitoringRoleArn: 'arn:aws:iam::111330348485:role/rds-monitoring-role'
       MasterUsername: admin
       MasterUserPassword: admin123
-      DBSecurityGroups: [!Ref 'MyAppRDSSG']
+      DBSecurityGroups: [ !Ref 'MyAppRDSSG' ]
       Tags:
         -
           Key: Name
@@ -575,8 +705,8 @@ Resources:
       Scheme: internet-facing
       Type: application
       Subnets:
-        - !Ref 'MyAppPublicSubnet1'
-        - !Ref 'MyAppPublicSubnet2'
+        - !Ref 'MyAppPrivateSubnet1'
+        - !Ref 'MyAppPrivateSubnet3'
       SecurityGroups:
         - !Ref 'MyAppALBSecurityGroup'
       IpAddressType: ipv4
@@ -618,7 +748,7 @@ Resources:
 # -------------------------------------------------- S3 Storage Bucket -------------------------------------------------
   MyAppS3Bucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       BucketName: !Ref 'MyBucketName'
       PublicAccessBlockConfiguration:
@@ -669,13 +799,13 @@ Resources:
       Statistic: Maximum
       Threshold: !Ref 'BillingThreshold'
 
-  MyAppASG01Alarm:
+  MyAppASG03Alarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: ASG01 CPU, Memory and Network Utilization
+      AlarmDescription: ASG03 CPU, Memory and Network Utilization
       Metrics:
         - Id: summary
-          Label: ASG01 - EC2 Utilization
+          Label: ASG03 - EC2 Utilization
           Expression: IF(cpu > 70, 1, 0) OR IF(memory > 75, 1, 0) OR IF(network > 80, 1, 0)
           ReturnData: true
         - Id: cpu
@@ -685,24 +815,24 @@ Resources:
               MetricName: CPUUtilization
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG01'
+                  Value: !Ref 'MyAppASG03'
             Stat: Maximum
             Period: 120
           ReturnData: false
         - Id: memory
-          Label: ASG01 - Memory Utilization
+          Label: ASG03 - Memory Utilization
           MetricStat:
             Metric:
               Namespace: CWAgent
               MetricName: mem_used_percent
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG01'
+                  Value: !Ref 'MyAppASG03'
             Stat: Maximum
             Period: 120
           ReturnData: false
         - Id: network
-          Label: ASG01 - Network Utilization
+          Label: ASG03 - Network Utilization
           Expression: "((network_in+network_out)/300/1000/1000/1000*8)/0.75*100"
           ReturnData: false
         - Id: network_in
@@ -712,7 +842,7 @@ Resources:
               MetricName: NetworkIn
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG01'
+                  Value: !Ref 'MyAppASG03'
             Stat: Sum
             Period: 120
           ReturnData: false
@@ -723,7 +853,7 @@ Resources:
               MetricName: NetworkOut
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG01'
+                  Value: !Ref 'MyAppASG03'
             Stat: Sum
             Period: 120
           ReturnData: false
@@ -733,13 +863,13 @@ Resources:
       DatapointsToAlarm: 1
       Threshold: '1'
 
-  MyAppASG02Alarm:
+  MyAppASG04Alarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: ASG02 CPU, Memory and Network Utilization
+      AlarmDescription: ASG04 CPU, Memory and Network Utilization
       Metrics:
         - Id: summary
-          Label: ASG02 - EC2 Utilization
+          Label: ASG04 - EC2 Utilization
           Expression: IF(cpu > 70, 1, 0) OR IF(memory > 75, 1, 0) OR IF(network > 80, 1, 0)
           ReturnData: true
         - Id: cpu
@@ -749,24 +879,24 @@ Resources:
               MetricName: CPUUtilization
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG02'
+                  Value: !Ref 'MyAppASG04'
             Stat: Maximum
             Period: 120
           ReturnData: false
         - Id: memory
-          Label: ASG02 - Memory Utilization
+          Label: ASG04 - Memory Utilization
           MetricStat:
             Metric:
               Namespace: CWAgent
               MetricName: mem_used_percent
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG02'
+                  Value: !Ref 'MyAppASG04'
             Stat: Maximum
             Period: 120
           ReturnData: false
         - Id: network
-          Label: ASG02 - Network Utilization
+          Label: ASG04 - Network Utilization
           Expression: "((network_in+network_out)/300/1000/1000/1000*8)/0.75*100"
           ReturnData: false
         - Id: network_in
@@ -776,7 +906,7 @@ Resources:
               MetricName: NetworkIn
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG02'
+                  Value: !Ref 'MyAppASG04'
             Stat: Sum
             Period: 120
           ReturnData: false
@@ -787,7 +917,7 @@ Resources:
               MetricName: NetworkOut
               Dimensions:
                 - Name: AutoScalingGroupName
-                  Value: !Ref 'MyAppASG02'
+                  Value: !Ref 'MyAppASG04'
             Stat: Sum
             Period: 120
           ReturnData: false
@@ -889,17 +1019,29 @@ Outputs:
     Description: DB subnet group name
     Value: !Ref 'MyAppDBSubnetGroup01'
 
-  MyAppLaunchTemplate:
-    Description: Reference to the Launch Template
-    Value: !Ref 'MyAppLaunchTemplate'
+  MyAppLaunchTemplate01:
+    Description: Reference to the Launch Template 01
+    Value: !Ref 'MyAppLaunchTemplate01'
+
+  MyAppLaunchTemplate02:
+    Description: Reference to the Launch Template 02
+    Value: !Ref 'MyAppLaunchTemplate02'
 
   MyAppASG01:
-    Description: Auto-Scaling Groups
+    Description: Auto-Scaling Group 01
     Value: !Ref 'MyAppASG01'
 
   MyAppASG02:
-    Description: Auto-Scaling Groups
+    Description: Auto-Scaling Group 02
     Value: !Ref 'MyAppASG02'
+
+  MyAppASG03:
+    Description: Auto-Scaling Group 03
+    Value: !Ref 'MyAppASG03'
+
+  MyAppASG04:
+    Description: Auto-Scaling Group 04
+    Value: !Ref 'MyAppASG04'
 
   MyRDS01:
     Description: RDS-DB 01
@@ -933,13 +1075,13 @@ Outputs:
     Description: Alarm for ALB
     Value: !Ref 'MyAppALBAlarm'
 
-  MyAppASG01Alarm:
-    Description: Alarm for ASG01
-    Value: !Ref 'MyAppASG01Alarm'
+  MyAppASG03Alarm:
+    Description: Alarm for ASG03
+    Value: !Ref 'MyAppASG03Alarm'
 
-  MyAppASG02Alarm:
-    Description: Alarm for ASG02
-    Value: !Ref 'MyAppASG02Alarm'
+  MyAppASG04Alarm:
+    Description: Alarm for ASG04
+    Value: !Ref 'MyAppASG04Alarm'
 
   AccountHolder:
     Description: Account Holder Name
