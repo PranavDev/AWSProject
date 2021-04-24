@@ -47,10 +47,10 @@ Parameters:
 
   # ------------ EC2 Config ------------
   KeyName:
-    Description: MyApp-PranavDeo
+    Description: Key Pair Name
     Type: AWS::EC2::KeyPair::KeyName
     Default: MyApp-PranavDeo
-    ConstraintDescription: MyApp-PranavDeo
+    ConstraintDescription: Replace with an existing KeyPair
 
   InstanceType:
     Description: EC2 Instance
@@ -103,7 +103,7 @@ Parameters:
   MyBucketName:
     Type: String
     Description: AWS Bucket Name
-    Default: netflix-aws-bucket02
+    Default: netflix-aws-bucket
 
   # ------------ ACCOUNT & BILLING ------------
   BillingThreshold:
@@ -114,12 +114,16 @@ Parameters:
   AccountHolder:
     Type: String
     Description: The Account Holder Name
-    Default: PranavHDeo
+    Default: TEST-USER
+    MinLength: 1
+    MaxLength: 63
 
   AccHolderEmailID:
     Type: String
     Description: The Account Holder's Email Address
-    Default: phd24@umd.edu
+    Default: testuser@xyz.com
+    MinLength: 1
+    MaxLength: 100
 # ----------------------------------------------------------------------------------------------------------------------
 # Resources Section
 # ----------------------------------------------------------------------------------------------------------------------
@@ -393,8 +397,8 @@ Resources:
           add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
           apt-get update
           apt install -y docker-ce
-          docker pull pdeo2020/awsproject:v06
-          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
+          docker pull pdeo2020/awsproject:v07
+          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07
         TagSpecifications:
           - ResourceType: instance
             Tags:
@@ -439,8 +443,8 @@ Resources:
           add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
           apt-get update
           apt install -y docker-ce
-          docker pull pdeo2020/awsproject:v06
-          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
+          docker pull pdeo2020/awsproject:v07
+          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07
         TagSpecifications:
           - ResourceType: instance
             Tags:

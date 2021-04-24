@@ -109,7 +109,7 @@ def Register():
         cur.close()
         s3_client = boto3.client('s3')
         s3_client.upload_file(Bucket=BUCKET_NAME, Filename='./Downloads/' + filename,
-                              Key='Profile_Image_Uploads/' + user_em.partition('@')[0] + '.jpg')
+                              Key=user_em.partition('@')[0] + '.jpg')
         # Send_Email(user_em, 'Register')
         return render_template('Login.html')
     else:
@@ -210,7 +210,7 @@ def ShowAccountDetails():
             cur.execute("SELECT * FROM Netflix_Users WHERE email LIKE (%s)", (user_em,))
             result = cur.fetchall()
             em_id = result[0][1]
-            fileObj = 'https://netflix-aws-bucket.s3.amazonaws.com/Profile_Image_Uploads/'+em_id.partition('@')[0]+'.jpg'
+            fileObj = 'https://netflix-aws-bucket.s3.amazonaws.com/'+em_id.partition('@')[0]+'.jpg'
             cur.close()
             return render_template('ShowAccountDetails.html', usern=result[0][0],
                                    email=result[0][1], password=result[0][2], img=fileObj)
@@ -247,7 +247,7 @@ def DeleteMyAccount():
             cur = conn.cursor()
             cur.execute("DELETE from Netflix_Users WHERE email=%s AND password=%s", (user_em, user_pass))
             s3_client = boto3.resource('s3')
-            obj = s3_client.Object(BUCKET_NAME, 'Profile_Image_Uploads/' + user_em.partition('@')[0] + '.jpg')
+            obj = s3_client.Object(BUCKET_NAME, user_em.partition('@')[0] + '.jpg')
             obj.delete()
             conn.commit()
             cur.close()

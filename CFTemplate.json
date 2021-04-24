@@ -38,10 +38,10 @@
             "Default": "10.192.6.0/24"
         },
         "KeyName": {
-            "Description": "MyApp-PranavDeo",
+            "Description": "Key Pair Name",
             "Type": "AWS::EC2::KeyPair::KeyName",
             "Default": "MyApp-PranavDeo",
-            "ConstraintDescription": "MyApp-PranavDeo"
+            "ConstraintDescription": "Replace with an existing KeyPair"
         },
         "InstanceType": {
             "Description": "EC2 Instance",
@@ -92,7 +92,7 @@
         "MyBucketName": {
             "Type": "String",
             "Description": "AWS Bucket Name",
-            "Default": "netflix-aws-bucket02"
+            "Default": "netflix-aws-bucket"
         },
         "BillingThreshold": {
             "Type": "Number",
@@ -102,12 +102,16 @@
         "AccountHolder": {
             "Type": "String",
             "Description": "The Account Holder Name",
-            "Default": "PranavHDeo"
+            "Default": "TEST-USER",
+            "MinLength": 1,
+            "MaxLength": 63
         },
         "AccHolderEmailID": {
             "Type": "String",
             "Description": "The Account Holder's Email Address",
-            "Default": "phd24@umd.edu"
+            "Default": "testuser@xyz.com",
+            "MinLength": 1,
+            "MaxLength": 100
         }
     },
     "Resources": {
@@ -128,11 +132,6 @@
                     "From": 5000,
                     "To": 5000
                 }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "ee2d7429-0834-4072-8770-c56db986f9bc"
-                }
             }
         },
         "InboundRule02": {
@@ -151,11 +150,6 @@
                 "PortRange": {
                     "From": 80,
                     "To": 80
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "c5cec6ff-71b7-4b32-83b7-5225390c58d5"
                 }
             }
         },
@@ -182,11 +176,6 @@
                         "Value": "MyApp-PrivateInstanceSecurityGroup"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "f87c6662-e011-4a63-b6e4-e635179fd965"
-                }
             }
         },
         "WebServerSecurityGroup": {
@@ -234,11 +223,6 @@
                         "Value": "MyApp-WebServerSecurityGroup"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "73452c8c-5524-4645-96da-3c168f794179"
-                }
             }
         },
         "MyAppIAMRole": {
@@ -266,11 +250,6 @@
                 "ManagedPolicyArns": [
                     "arn:aws:iam::111330348485:policy/MyApp-Policy"
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "ddd82a32-d85d-4a49-bf2f-f6dca60cd4d3"
-                }
             }
         },
         "MyAppInstanceProfile": {
@@ -282,11 +261,6 @@
                         "Ref": "MyAppIAMRole"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "5e008fcb-1f86-4ced-b5c5-fbd7ccf1b9b1"
-                }
             }
         },
         "MyAppVPC": {
@@ -304,11 +278,6 @@
                         "Value": "MyApp-VPC"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                }
             }
         },
         "MyAppPublicSubnet1": {
@@ -328,11 +297,6 @@
                         "Value": "MyApp-PublicSubnet1"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "5aabf9b2-eb28-46fe-9d37-1bea05d67ca9"
-                }
             }
         },
         "MyAppPublicSubnet2": {
@@ -352,11 +316,6 @@
                         "Value": "MyApp-PublicSubnet2"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "7f88c590-df98-40b8-a8c6-523449a64a78"
-                }
             }
         },
         "MyAppPrivateSubnet1": {
@@ -376,11 +335,6 @@
                         "Value": "MyApp-PrivateSubnet1"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "40d33314-30f1-49be-9b89-3276c85adab0"
-                }
             }
         },
         "MyAppPrivateSubnet2": {
@@ -400,11 +354,6 @@
                         "Value": "MyApp-PrivateSubnet2"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "7f106419-9744-4f5a-9bcd-86be120efaf3"
-                }
             }
         },
         "MyAppPrivateSubnet3": {
@@ -424,11 +373,6 @@
                         "Value": "MyApp-PrivateSubnet3"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "a8ecdd0b-2da7-4640-af72-62bb77de5343"
-                }
             }
         },
         "MyAppPrivateSubnet4": {
@@ -448,11 +392,6 @@
                         "Value": "MyApp-PrivateSubnet4"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "f20856d5-e0d2-458e-ac65-9e2345befa6f"
-                }
             }
         },
         "MyAppInternetGateway": {
@@ -464,11 +403,6 @@
                         "Value": "MyApp-InternetGateway"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "0935690f-44b1-488f-bb9f-b768e12e723d"
-                }
             }
         },
         "MyAppVPCGatewayAtt": {
@@ -479,11 +413,6 @@
                 },
                 "VpcId": {
                     "Ref": "MyAppVPC"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "995b0632-440d-4f3a-998a-cb3368487300"
                 }
             }
         },
@@ -499,11 +428,6 @@
                         "Value": "MyApp-Public-RouteTable"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "7a182726-16af-48bc-9ed0-e15de69fa219"
-                }
             }
         },
         "MyAppPublicRoute": {
@@ -517,11 +441,6 @@
                 "GatewayId": {
                     "Ref": "MyAppInternetGateway"
                 }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "fe902cd8-6e85-4377-a9b9-5f0fd3b7b48a"
-                }
             }
         },
         "PublicSubnet1RouteTableAssociation": {
@@ -532,11 +451,6 @@
                 },
                 "RouteTableId": {
                     "Ref": "MyAppPublicRouteTable"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "6895df54-7abc-44e8-92dd-9c64ebad87e3"
                 }
             }
         },
@@ -549,11 +463,6 @@
                 "RouteTableId": {
                     "Ref": "MyAppPublicRouteTable"
                 }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "87634953-707b-4ece-8497-01857875a50c"
-                }
             }
         },
         "PrivateSubnet1RouteTableAssociation": {
@@ -565,11 +474,6 @@
                 "RouteTableId": {
                     "Ref": "MyAppPublicRouteTable"
                 }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "0ba59ff7-5081-4e36-a529-2bbd0fe5776c"
-                }
             }
         },
         "PrivateSubnet3RouteTableAssociation": {
@@ -580,11 +484,6 @@
                 },
                 "RouteTableId": {
                     "Ref": "MyAppPublicRouteTable"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "cb9d8afc-f1a0-417b-b36f-d430a66f60eb"
                 }
             }
         },
@@ -623,7 +522,7 @@
                         "Enabled": true
                     },
                     "UserData": {
-                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v06\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06\n"
+                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v07\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07\n"
                     },
                     "TagSpecifications": [
                         {
@@ -636,11 +535,6 @@
                             ]
                         }
                     ]
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "0db2cfbc-12f4-41c4-845d-462227997c86"
                 }
             }
         },
@@ -679,7 +573,7 @@
                         "Enabled": true
                     },
                     "UserData": {
-                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v06\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06\n"
+                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v07\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v07\n"
                     },
                     "TagSpecifications": [
                         {
@@ -692,11 +586,6 @@
                             ]
                         }
                     ]
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "cf2e1b92-06d1-40e2-bee0-2175bae11241"
                 }
             }
         },
@@ -750,11 +639,6 @@
                         "PropagateAtLaunch": "true"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "f516fa21-ea5c-4bb9-9ae3-20c13018548d"
-                }
             }
         },
         "MyAppASG02": {
@@ -807,11 +691,6 @@
                         "PropagateAtLaunch": "true"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "b5d2999f-a81e-4341-97d2-00b81faf0988"
-                }
             }
         },
         "MyAppASG03": {
@@ -864,11 +743,6 @@
                         "PropagateAtLaunch": "true"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "6ec39f4f-94a1-4d44-bd16-24435e0a15a0"
-                }
             }
         },
         "MyAppASG04": {
@@ -921,11 +795,6 @@
                         "PropagateAtLaunch": "true"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "b894c695-0039-4869-8f43-87a2244746a5"
-                }
             }
         },
         "MyAppRDSSG": {
@@ -946,11 +815,6 @@
                         "Value": "MyApp-RDS-SG"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "5583cc29-ab22-4867-a3e5-646b4ec73ecc"
-                }
             }
         },
         "MyAppDBSubnetGroup01": {
@@ -971,11 +835,6 @@
                         "Value": "MyApp-RDS-SubnetGroup01"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "3749767b-6d3e-415d-b436-fa4aafc1b7bb"
-                }
             }
         },
         "MyAppDBSubnetGroup02": {
@@ -996,11 +855,6 @@
                         "Value": "MyApp-RDS-SubnetGroup02"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "248bbee0-39b5-459d-9b18-ea3019f2cdb2"
-                }
             }
         },
         "MyAppDatabase01": {
@@ -1037,11 +891,6 @@
                         "Value": "MyApp-RDS01"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "99835222-9b44-4a5b-a4dd-740fcfc81385"
-                }
             }
         },
         "MyAppDatabase02": {
@@ -1078,11 +927,6 @@
                         "Value": "MyApp-RDS02"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "4be99594-27b5-4fd2-a183-cf59f80f9270"
-                }
             }
         },
         "MyAppALBSecurityGroup": {
@@ -1113,11 +957,6 @@
                         "ToPort": 5000
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "c83e2174-42ce-45d2-b20e-4e109a382068"
-                }
             }
         },
         "MyAppALBTG": {
@@ -1167,11 +1006,6 @@
                         "Value": "round_robin"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "651c1d6f-9205-4896-a919-39a01833615f"
-                }
             }
         },
         "MyAppALB": {
@@ -1222,11 +1056,6 @@
                         "Value": "false"
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "9a5ecdbb-a8e6-4e14-a37d-8f824c1a2c6a"
-                }
             }
         },
         "MyAppHTTPListener01": {
@@ -1245,11 +1074,6 @@
                         }
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "7885f9d4-bace-4b17-be76-f4e5262742b2"
-                }
             }
         },
         "MyAppHTTPListener02": {
@@ -1268,11 +1092,6 @@
                         }
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "9e6968eb-a97f-4a69-aec5-0b3a2a0e2c43"
-                }
             }
         },
         "MyAppS3Bucket": {
@@ -1291,11 +1110,6 @@
                 "AccessControl": "PublicReadWrite",
                 "VersioningConfiguration": {
                     "Status": "Suspended"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "a80428c9-2946-4bf0-8d71-0bd37234a54e"
                 }
             }
         },
@@ -1328,11 +1142,6 @@
                 "Bucket": {
                     "Ref": "MyAppS3Bucket"
                 }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "529b4f6e-cdcb-48ac-a8fb-70d206407bf8"
-                }
             }
         },
         "MyAppBillingAlarm": {
@@ -1364,11 +1173,6 @@
                 "Statistic": "Maximum",
                 "Threshold": {
                     "Ref": "BillingThreshold"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "1d6dcb2d-719a-4f6c-af87-112b9030c6c0"
                 }
             }
         },
@@ -1476,11 +1280,6 @@
                 "EvaluationPeriods": 1,
                 "DatapointsToAlarm": 1,
                 "Threshold": "1"
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "af0a5829-b920-47ac-9010-303c26d32ed8"
-                }
             }
         },
         "MyAppASG04Alarm": {
@@ -1587,11 +1386,6 @@
                 "EvaluationPeriods": 1,
                 "DatapointsToAlarm": 1,
                 "Threshold": "1"
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "9b72e6c5-87c7-4292-b21e-bc7043c37f86"
-                }
             }
         },
         "MyAppALBAlarm": {
@@ -1617,11 +1411,6 @@
                     }
                 ],
                 "ComparisonOperator": "GreaterThanOrEqualToThreshold"
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "ec6db167-ad27-4dff-963a-fe436bfd1dfe"
-                }
             }
         },
         "MyAppTopic": {
@@ -1638,11 +1427,6 @@
                         }
                     }
                 ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "e6cf18e9-ef3c-4f46-bf0d-4cdac9828957"
-                }
             }
         }
     },
@@ -1858,666 +1642,6 @@
             "Description": "S3 Resource",
             "Value": {
                 "Ref": "MyAppS3Bucket"
-            }
-        }
-    },
-    "Metadata": {
-        "AWS::CloudFormation::Designer": {
-            "e6cf18e9-ef3c-4f46-bf0d-4cdac9828957": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 90
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "1d6dcb2d-719a-4f6c-af87-112b9030c6c0": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 90
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "a80428c9-2946-4bf0-8d71-0bd37234a54e": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 210
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "529b4f6e-cdcb-48ac-a8fb-70d206407bf8": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 210
-                },
-                "z": 1,
-                "embeds": [],
-                "isassociatedwith": [
-                    "a80428c9-2946-4bf0-8d71-0bd37234a54e"
-                ]
-            },
-            "0935690f-44b1-488f-bb9f-b768e12e723d": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 330
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255": {
-                "size": {
-                    "width": 960,
-                    "height": 870
-                },
-                "position": {
-                    "x": 60,
-                    "y": 90
-                },
-                "z": 1,
-                "embeds": [
-                    "651c1d6f-9205-4896-a919-39a01833615f",
-                    "c83e2174-42ce-45d2-b20e-4e109a382068",
-                    "7a182726-16af-48bc-9ed0-e15de69fa219",
-                    "f20856d5-e0d2-458e-ac65-9e2345befa6f",
-                    "a8ecdd0b-2da7-4640-af72-62bb77de5343",
-                    "7f106419-9744-4f5a-9bcd-86be120efaf3",
-                    "40d33314-30f1-49be-9b89-3276c85adab0",
-                    "7f88c590-df98-40b8-a8c6-523449a64a78",
-                    "5aabf9b2-eb28-46fe-9d37-1bea05d67ca9",
-                    "73452c8c-5524-4645-96da-3c168f794179",
-                    "5583cc29-ab22-4867-a3e5-646b4ec73ecc",
-                    "f87c6662-e011-4a63-b6e4-e635179fd965"
-                ]
-            },
-            "651c1d6f-9205-4896-a919-39a01833615f": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 90,
-                    "y": 750
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "c83e2174-42ce-45d2-b20e-4e109a382068": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 210,
-                    "y": 750
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "7a182726-16af-48bc-9ed0-e15de69fa219": {
-                "size": {
-                    "width": 240,
-                    "height": 240
-                },
-                "position": {
-                    "x": 690,
-                    "y": 150
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [
-                    "fe902cd8-6e85-4377-a9b9-5f0fd3b7b48a"
-                ],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "995b0632-440d-4f3a-998a-cb3368487300": {
-                "source": {
-                    "id": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                },
-                "target": {
-                    "id": "0935690f-44b1-488f-bb9f-b768e12e723d"
-                }
-            },
-            "fe902cd8-6e85-4377-a9b9-5f0fd3b7b48a": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 720,
-                    "y": 210
-                },
-                "z": 3,
-                "parent": "7a182726-16af-48bc-9ed0-e15de69fa219",
-                "embeds": [],
-                "isassociatedwith": [
-                    "0935690f-44b1-488f-bb9f-b768e12e723d"
-                ],
-                "iscontainedinside": [
-                    "7a182726-16af-48bc-9ed0-e15de69fa219"
-                ],
-                "dependson": [
-                    "995b0632-440d-4f3a-998a-cb3368487300"
-                ]
-            },
-            "f20856d5-e0d2-458e-ac65-9e2345befa6f": {
-                "size": {
-                    "width": 150,
-                    "height": 150
-                },
-                "position": {
-                    "x": 690,
-                    "y": 660
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "a8ecdd0b-2da7-4640-af72-62bb77de5343": {
-                "size": {
-                    "width": 240,
-                    "height": 240
-                },
-                "position": {
-                    "x": 390,
-                    "y": 450
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [
-                    "b894c695-0039-4869-8f43-87a2244746a5"
-                ],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "cb9d8afc-f1a0-417b-b36f-d430a66f60eb": {
-                "source": {
-                    "id": "7a182726-16af-48bc-9ed0-e15de69fa219"
-                },
-                "target": {
-                    "id": "a8ecdd0b-2da7-4640-af72-62bb77de5343"
-                }
-            },
-            "7f106419-9744-4f5a-9bcd-86be120efaf3": {
-                "size": {
-                    "width": 150,
-                    "height": 150
-                },
-                "position": {
-                    "x": 690,
-                    "y": 450
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "248bbee0-39b5-459d-9b18-ea3019f2cdb2": {
-                "size": {
-                    "width": 240,
-                    "height": 240
-                },
-                "position": {
-                    "x": 360,
-                    "y": 1020
-                },
-                "z": 1,
-                "embeds": [
-                    "4be99594-27b5-4fd2-a183-cf59f80f9270"
-                ],
-                "iscontainedinside": [
-                    "7f106419-9744-4f5a-9bcd-86be120efaf3",
-                    "f20856d5-e0d2-458e-ac65-9e2345befa6f"
-                ]
-            },
-            "40d33314-30f1-49be-9b89-3276c85adab0": {
-                "size": {
-                    "width": 240,
-                    "height": 240
-                },
-                "position": {
-                    "x": 90,
-                    "y": 450
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [
-                    "6ec39f4f-94a1-4d44-bd16-24435e0a15a0"
-                ],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "9a5ecdbb-a8e6-4e14-a37d-8f824c1a2c6a": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 330
-                },
-                "z": 1,
-                "embeds": [],
-                "isassociatedwith": [
-                    "c83e2174-42ce-45d2-b20e-4e109a382068"
-                ],
-                "iscontainedinside": [
-                    "40d33314-30f1-49be-9b89-3276c85adab0",
-                    "a8ecdd0b-2da7-4640-af72-62bb77de5343"
-                ]
-            },
-            "ec6db167-ad27-4dff-963a-fe436bfd1dfe": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 450
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "9e6968eb-a97f-4a69-aec5-0b3a2a0e2c43": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 450
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "7885f9d4-bace-4b17-be76-f4e5262742b2": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 570
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "3749767b-6d3e-415d-b436-fa4aafc1b7bb": {
-                "size": {
-                    "width": 240,
-                    "height": 240
-                },
-                "position": {
-                    "x": 60,
-                    "y": 1020
-                },
-                "z": 1,
-                "embeds": [
-                    "99835222-9b44-4a5b-a4dd-740fcfc81385"
-                ],
-                "iscontainedinside": [
-                    "40d33314-30f1-49be-9b89-3276c85adab0",
-                    "a8ecdd0b-2da7-4640-af72-62bb77de5343"
-                ]
-            },
-            "0ba59ff7-5081-4e36-a529-2bbd0fe5776c": {
-                "source": {
-                    "id": "7a182726-16af-48bc-9ed0-e15de69fa219"
-                },
-                "target": {
-                    "id": "40d33314-30f1-49be-9b89-3276c85adab0"
-                }
-            },
-            "7f88c590-df98-40b8-a8c6-523449a64a78": {
-                "size": {
-                    "width": 240,
-                    "height": 240
-                },
-                "position": {
-                    "x": 390,
-                    "y": 150
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [
-                    "b5d2999f-a81e-4341-97d2-00b81faf0988"
-                ],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "87634953-707b-4ece-8497-01857875a50c": {
-                "source": {
-                    "id": "7a182726-16af-48bc-9ed0-e15de69fa219"
-                },
-                "target": {
-                    "id": "7f88c590-df98-40b8-a8c6-523449a64a78"
-                }
-            },
-            "5aabf9b2-eb28-46fe-9d37-1bea05d67ca9": {
-                "size": {
-                    "width": 240,
-                    "height": 240
-                },
-                "position": {
-                    "x": 90,
-                    "y": 150
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [
-                    "f516fa21-ea5c-4bb9-9ae3-20c13018548d"
-                ],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "6895df54-7abc-44e8-92dd-9c64ebad87e3": {
-                "source": {
-                    "id": "7a182726-16af-48bc-9ed0-e15de69fa219"
-                },
-                "target": {
-                    "id": "5aabf9b2-eb28-46fe-9d37-1bea05d67ca9"
-                }
-            },
-            "ddd82a32-d85d-4a49-bf2f-f6dca60cd4d3": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 570
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "5e008fcb-1f86-4ced-b5c5-fbd7ccf1b9b1": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 690
-                },
-                "z": 1,
-                "embeds": [],
-                "isassociatedwith": [
-                    "ddd82a32-d85d-4a49-bf2f-f6dca60cd4d3"
-                ]
-            },
-            "73452c8c-5524-4645-96da-3c168f794179": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 330,
-                    "y": 750
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "5583cc29-ab22-4867-a3e5-646b4ec73ecc": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 450,
-                    "y": 750
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "4be99594-27b5-4fd2-a183-cf59f80f9270": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 390,
-                    "y": 1080
-                },
-                "z": 2,
-                "parent": "248bbee0-39b5-459d-9b18-ea3019f2cdb2",
-                "embeds": [],
-                "isassociatedwith": [
-                    "5583cc29-ab22-4867-a3e5-646b4ec73ecc"
-                ],
-                "iscontainedinside": [
-                    "248bbee0-39b5-459d-9b18-ea3019f2cdb2"
-                ]
-            },
-            "99835222-9b44-4a5b-a4dd-740fcfc81385": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 90,
-                    "y": 1080
-                },
-                "z": 2,
-                "parent": "3749767b-6d3e-415d-b436-fa4aafc1b7bb",
-                "embeds": [],
-                "isassociatedwith": [
-                    "5583cc29-ab22-4867-a3e5-646b4ec73ecc"
-                ],
-                "iscontainedinside": [
-                    "3749767b-6d3e-415d-b436-fa4aafc1b7bb"
-                ]
-            },
-            "cf2e1b92-06d1-40e2-bee0-2175bae11241": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 690
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "b894c695-0039-4869-8f43-87a2244746a5": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 420,
-                    "y": 510
-                },
-                "z": 3,
-                "parent": "a8ecdd0b-2da7-4640-af72-62bb77de5343",
-                "embeds": [],
-                "isassociatedwith": [
-                    "651c1d6f-9205-4896-a919-39a01833615f"
-                ],
-                "iscontainedinside": [
-                    "a8ecdd0b-2da7-4640-af72-62bb77de5343"
-                ]
-            },
-            "9b72e6c5-87c7-4292-b21e-bc7043c37f86": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 810
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "6ec39f4f-94a1-4d44-bd16-24435e0a15a0": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 120,
-                    "y": 510
-                },
-                "z": 3,
-                "parent": "40d33314-30f1-49be-9b89-3276c85adab0",
-                "embeds": [],
-                "isassociatedwith": [
-                    "651c1d6f-9205-4896-a919-39a01833615f"
-                ],
-                "iscontainedinside": [
-                    "40d33314-30f1-49be-9b89-3276c85adab0"
-                ]
-            },
-            "af0a5829-b920-47ac-9010-303c26d32ed8": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 810
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "f87c6662-e011-4a63-b6e4-e635179fd965": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 570,
-                    "y": 750
-                },
-                "z": 2,
-                "parent": "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255",
-                "embeds": [],
-                "iscontainedinside": [
-                    "1c0d4dcf-c645-49c7-a3f1-1daa43d6c255"
-                ]
-            },
-            "0db2cfbc-12f4-41c4-845d-462227997c86": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1080,
-                    "y": 930
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "b5d2999f-a81e-4341-97d2-00b81faf0988": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 420,
-                    "y": 210
-                },
-                "z": 3,
-                "parent": "7f88c590-df98-40b8-a8c6-523449a64a78",
-                "embeds": [],
-                "isassociatedwith": [
-                    "651c1d6f-9205-4896-a919-39a01833615f"
-                ],
-                "iscontainedinside": [
-                    "7f88c590-df98-40b8-a8c6-523449a64a78"
-                ]
-            },
-            "f516fa21-ea5c-4bb9-9ae3-20c13018548d": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 120,
-                    "y": 210
-                },
-                "z": 3,
-                "parent": "5aabf9b2-eb28-46fe-9d37-1bea05d67ca9",
-                "embeds": [],
-                "isassociatedwith": [
-                    "651c1d6f-9205-4896-a919-39a01833615f"
-                ],
-                "iscontainedinside": [
-                    "5aabf9b2-eb28-46fe-9d37-1bea05d67ca9"
-                ]
-            },
-            "c5cec6ff-71b7-4b32-83b7-5225390c58d5": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 1200,
-                    "y": 930
-                },
-                "z": 1,
-                "embeds": []
-            },
-            "ee2d7429-0834-4072-8770-c56db986f9bc": {
-                "size": {
-                    "width": 60,
-                    "height": 60
-                },
-                "position": {
-                    "x": 660,
-                    "y": 1020
-                },
-                "z": 1,
-                "embeds": []
             }
         }
     }
