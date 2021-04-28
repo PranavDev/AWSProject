@@ -374,7 +374,7 @@ Resources:
         KeyName: !Ref 'KeyName'
         SecurityGroupIds:
           - !GetAtt OnlyBashSecurityGroup.GroupId
-        #BlockDeviceMappings:
+        # BlockDeviceMappings:
         #  - DeviceName: /dev/sdm
         #    Ebs:
         #      VolumeType: io1
