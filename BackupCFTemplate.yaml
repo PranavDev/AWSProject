@@ -1,3 +1,32 @@
+########################################################################################################################
+# AWS Project - 02 (Building on AWS)
+# Template Author - Pranav H. Deo
+# Course - ENTS649B AWS Cloud Computing
+########################################################################################################################
+# AWS Template Description:
+########################################################################################################################
+# Parameters Section :- CIDR to VPC and Subnets - EC2 Config - DB Config - S3 Bucket - Account & Billing.
+# VPC Creation :- 6 Subnets - 1 Public and 2 Private Per AZ (Used 2 AZs: us-east-1a & us-east-1b).
+# Key Pair :- Using a manually created keypair.
+# IAM Role :- Created for EC2-S3-RDS Access (New Policy Created for Resources).
+# Instance :- Using 6 t2.micro instance in WebApp tier (free tier eligible) - Ubuntu 20.04 (Linux).
+# Database :- 2 MySQL databases - db.t2.micro instances - Available across 2 AZs (us-east-1a & us-east-1b).
+# S3 Bucket :- PublicReadWrite Access
+# 2 NACL Rules :- In-bound and Out-bound (5000 and 80) - HTTP traffic.
+# 2 Public Subnets and 4 Private Subnets (1 Public + 2 Private Group in 2 AZs).
+# Each Group (1 Public & 2 Private Subnets) Available across 2 AZs (us-east-1a & us-east-1b).
+# Bash Instances running in Public Subnets :- SSH-able from outside with KeyPair.
+# Bash Instances used as entry into WebApp Instances for Security.
+# WebApp Instances SSH-able only through traffic inside the VPC.
+# Internet Gateway :- Attached to newly created VPC Public Route Table.
+# Launch Templates :- 2 templates (Template-01 for Bash Instances; Template-02 for WebApp Instances).
+# Launch Templates :- Each with separate UserData for Instances in Public and Private Subnets.
+# Auto-Scaling Groups :- 4 ASGs (1 in each Public and WebApp Tier) - MinSize 1, MaxSize 3, DesiredCapacity 2.
+# RDS Database :- 2 Instances (1 in each Data-Tier) across 2 AZs (us-east-1a & us-east-1b).
+# Application Load Balancer :- 2 Listeners (port 80 & 5000) - Traffic from anywhere - Targets Instances on WebApp Tier.
+# CloudWatch Alarms :- 4 Metric Alarms - 1 Composite Alarm - SNS Topic sent to User-Email-ID.
+# Output Section with references to Resources.
+########################################################################################################################
 # ----------------------------------------------------------------------------------------------------------------------
 # AWS CloudFormation Template
 # ----------------------------------------------------------------------------------------------------------------------
@@ -200,6 +229,25 @@ Resources:
         - Key: Name
           Value: MyApp-WebServerSecurityGroup
 
+  MyAppManagedPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: EC2-S3-RDS-DynamoDB-Policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 's3:*'
+            Resource: '*'
+          - Effect: Allow
+            Action: 'rds:*'
+            Resource: '*'
+          - Effect: Allow
+            Action: 'dynamodb:*'
+            Resource: '*'
+      Roles:
+        - !Ref 'MyAppIAMRole'
+
   MyAppIAMRole:
     Type: AWS::IAM::Role
     Properties:
@@ -215,8 +263,8 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Path: '/'
-      ManagedPolicyArns:
-        - 'arn:aws:iam::111330348485:policy/MyApp-Policy'
+#      ManagedPolicyArns:
+#        - 'arn:aws:iam::111330348485:policy/MyApp-Policy'
 
   MyAppInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -393,12 +441,6 @@ Resources:
           service apache2 restart
           apt-get install -y mysql-server
           apt install -y apt-transport-https ca-certificates curl software-properties-common
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-          apt-get update
-          apt install -y docker-ce
-          docker pull pdeo2020/awsproject:v06
-          docker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06
         TagSpecifications:
           - ResourceType: instance
             Tags:
@@ -786,6 +828,7 @@ Resources:
   MyAppBillingAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
+      AlarmName: MyAppBillingAlarm
       ActionsEnabled: true
       AlarmActions:
         - !Ref 'MyAppTopic'
@@ -806,6 +849,7 @@ Resources:
   MyAppASG03Alarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
+      AlarmName: MyAppASG03Alarm
       AlarmDescription: ASG03 CPU, Memory and Network Utilization
       Metrics:
         - Id: summary
@@ -870,6 +914,7 @@ Resources:
   MyAppASG04Alarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
+      AlarmName: MyAppASG04Alarm
       AlarmDescription: ASG04 CPU, Memory and Network Utilization
       Metrics:
         - Id: summary
@@ -934,6 +979,7 @@ Resources:
   MyAppALBAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
+      AlarmName: MyAppALBAlarm
       AlarmDescription: ALB Scale Up Alarm
       MetricName: RequestCount
       Namespace: AWS/ApplicationELB
@@ -941,11 +987,23 @@ Resources:
       Period: 120
       EvaluationPeriods: 1
       TreatMissingData: missing
-      Threshold: 20
+      Threshold: 50
       Dimensions:
         - Name: LoadBalancer
           Value: !GetAtt MyAppALB.LoadBalancerFullName
       ComparisonOperator: GreaterThanOrEqualToThreshold
+
+  MyAppCompositeAlarm:
+    Type: AWS::CloudWatch::CompositeAlarm
+    Properties:
+      AlarmName: MyApp-Composite-Alarm
+      AlarmRule: ALARM(MyAppALBAlarm) AND ALARM(MyAppBillingAlarm)
+      AlarmActions:
+        - !Ref 'MyAppTopic'
+      AlarmDescription: Composite Alarm for ASG03, ASG04 and Billing
+    DependsOn:
+      - MyAppALBAlarm
+      - MyAppBillingAlarm
 
   MyAppTopic:
     Type: AWS::SNS::Topic
@@ -1086,6 +1144,10 @@ Outputs:
   MyAppASG04Alarm:
     Description: Alarm for ASG04
     Value: !Ref 'MyAppASG04Alarm'
+
+  MyAppCompositeAlarm:
+    Description: Composite Alarm
+    Value: !Ref 'MyAppCompositeAlarm'
 
   AccountHolder:
     Description: Account Holder Name

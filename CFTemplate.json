@@ -225,6 +225,37 @@
                 ]
             }
         },
+        "MyAppManagedPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "EC2-S3-RDS-DynamoDB-Policy",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "s3:*",
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": "rds:*",
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": "dynamodb:*",
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "MyAppIAMRole"
+                    }
+                ]
+            }
+        },
         "MyAppIAMRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -246,10 +277,7 @@
                         }
                     ]
                 },
-                "Path": "/",
-                "ManagedPolicyArns": [
-                    "arn:aws:iam::111330348485:policy/MyApp-Policy"
-                ]
+                "Path": "/"
             }
         },
         "MyAppInstanceProfile": {
@@ -522,7 +550,7 @@
                         "Enabled": true
                     },
                     "UserData": {
-                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable\"\napt-get update\napt install -y docker-ce\ndocker pull pdeo2020/awsproject:v06\ndocker run -d --name netflix -p 5000:5000 pdeo2020/awsproject:v06\n"
+                        "Fn::Base64": "#!/bin/bash\napt-get update\napt-get -y upgrade\napt install -y apache2\napt-get install php libapache2-mod-php php-mysql php-curl php-gd php-json php-zip php-mbstring\nservice apache2 restart\napt-get install -y mysql-server\napt install -y apt-transport-https ca-certificates curl software-properties-common\n"
                     },
                     "TagSpecifications": [
                         {
@@ -1147,6 +1175,7 @@
         "MyAppBillingAlarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
+                "AlarmName": "MyAppBillingAlarm",
                 "ActionsEnabled": true,
                 "AlarmActions": [
                     {
@@ -1179,6 +1208,7 @@
         "MyAppASG03Alarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
+                "AlarmName": "MyAppASG03Alarm",
                 "AlarmDescription": "ASG03 CPU, Memory and Network Utilization",
                 "Metrics": [
                     {
@@ -1285,6 +1315,7 @@
         "MyAppASG04Alarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
+                "AlarmName": "MyAppASG04Alarm",
                 "AlarmDescription": "ASG04 CPU, Memory and Network Utilization",
                 "Metrics": [
                     {
@@ -1391,6 +1422,7 @@
         "MyAppALBAlarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
+                "AlarmName": "MyAppALBAlarm",
                 "AlarmDescription": "ALB Scale Up Alarm",
                 "MetricName": "RequestCount",
                 "Namespace": "AWS/ApplicationELB",
@@ -1398,7 +1430,7 @@
                 "Period": 120,
                 "EvaluationPeriods": 1,
                 "TreatMissingData": "missing",
-                "Threshold": 20,
+                "Threshold": 50,
                 "Dimensions": [
                     {
                         "Name": "LoadBalancer",
@@ -1412,6 +1444,23 @@
                 ],
                 "ComparisonOperator": "GreaterThanOrEqualToThreshold"
             }
+        },
+        "MyAppCompositeAlarm": {
+            "Type": "AWS::CloudWatch::CompositeAlarm",
+            "Properties": {
+                "AlarmName": "MyApp-Composite-Alarm",
+                "AlarmRule": "ALARM(MyAppALBAlarm) AND ALARM(MyAppBillingAlarm)",
+                "AlarmActions": [
+                    {
+                        "Ref": "MyAppTopic"
+                    }
+                ],
+                "AlarmDescription": "Composite Alarm for ASG03, ASG04 and Billing"
+            },
+            "DependsOn": [
+                "MyAppALBAlarm",
+                "MyAppBillingAlarm"
+            ]
         },
         "MyAppTopic": {
             "Type": "AWS::SNS::Topic",
@@ -1624,6 +1673,12 @@
             "Description": "Alarm for ASG04",
             "Value": {
                 "Ref": "MyAppASG04Alarm"
+            }
+        },
+        "MyAppCompositeAlarm": {
+            "Description": "Composite Alarm",
+            "Value": {
+                "Ref": "MyAppCompositeAlarm"
             }
         },
         "AccountHolder": {
