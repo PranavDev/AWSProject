@@ -232,7 +232,7 @@
                 }
             }
         },
-        "OnlyBashSecurityGroup": {
+        "BastianHostSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "VpcId": {
@@ -738,7 +738,7 @@
                     "SecurityGroupIds": [
                         {
                             "Fn::GetAtt": [
-                                "OnlyBashSecurityGroup",
+                                "BastianHostSecurityGroup",
                                 "GroupId"
                             ]
                         }
@@ -1648,15 +1648,21 @@
     },
     "Outputs": {
         "MyAppWebServerSecurityGroup": {
-            "Description": "Reference to the created WebServerSecurityGroup",
+            "Description": "Reference to the created WebServer Security Group",
             "Value": {
                 "Ref": "WebServerSecurityGroup"
             }
         },
-        "BashSecurityGroup": {
-            "Description": "Reference to the created BashSecurityGroup",
+        "MyAppBastianSecurityGroup": {
+            "Description": "Reference to the created Bastian Security Group",
             "Value": {
-                "Ref": "OnlyBashSecurityGroup"
+                "Ref": "BastianHostSecurityGroup"
+            }
+        },
+        "MyAppRDSSG": {
+            "Description": "Reference to the created RDS Security Group",
+            "Value": {
+                "Ref": "MyAppRDSSG"
             }
         },
         "MyAppIAMRole": {

@@ -251,7 +251,7 @@ Resources:
         To: 4999
 
 # ----------------------------------- BASTIAN, WEB-SERVER SECURITY GROUPS ---------------------------------
-  OnlyBashSecurityGroup:
+  BastianHostSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref 'MyAppVPC'
@@ -551,7 +551,7 @@ Resources:
         InstanceType: !Ref 'InstanceType'
         KeyName: !Ref 'KeyName'
         SecurityGroupIds:
-          - !GetAtt OnlyBashSecurityGroup.GroupId
+          - !GetAtt BastianHostSecurityGroup.GroupId
         # BlockDeviceMappings:
         #  - DeviceName: /dev/sdm
         #    Ebs:
@@ -1133,12 +1133,16 @@ Resources:
 # ----------------------------------------------------------------------------------------------------------------------
 Outputs:
   MyAppWebServerSecurityGroup:
-    Description: Reference to the created WebServerSecurityGroup
+    Description: Reference to the created WebServer Security Group
     Value: !Ref 'WebServerSecurityGroup'
 
-  BashSecurityGroup:
-    Description: Reference to the created BashSecurityGroup
-    Value: !Ref 'OnlyBashSecurityGroup'
+  MyAppBastianSecurityGroup:
+    Description: Reference to the created Bastian Security Group
+    Value: !Ref 'BastianHostSecurityGroup'
+
+  MyAppRDSSG:
+    Description: Reference to the created RDS Security Group
+    Value: !Ref 'MyAppRDSSG'
 
   MyAppIAMRole:
     Description: Reference to the created IAM Role
