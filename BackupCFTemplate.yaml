@@ -14,8 +14,8 @@
 # 2 NACL Rules :- In-bound and Out-bound (5000 and 80) - HTTP traffic.
 # 2 Public Subnets and 4 Private Subnets (1 Public + 2 Private Group in 2 AZs).
 # Each Group (1 Public & 2 Private Subnets) Available across 2 AZs (us-east-1a & us-east-1b).
-# Bash Instances running in Public Subnets :- SSH-able from outside with KeyPair.
-# Bash Instances used as entry into WebApp Instances for Security.
+# Bastian Host/Instances running in Public Subnets :- SSH-able from outside with KeyPair.
+# Bastian Host/Instances used as entry into WebApp Instances for Attack/Security purposes.
 # NAT Gateway :- 2 - 1 in each Public Subnets (across 2 AZ).
 # WebApp Instances SSH-able only through traffic inside the VPC.
 # Internet Gateway :- Attached to newly created VPC Public Route Table.
@@ -156,8 +156,8 @@ Parameters:
 # Resources Section
 # ----------------------------------------------------------------------------------------------------------------------
 Resources:
-# ------------------------------------------- NACL, In-Bound & Out-Bound Rules -----------------------------------------
-  InboundRule01:
+# ------------------------------------------- NACL: In-Bound & Out-Bound Rules -----------------------------------------
+  InboundAllowRule01:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
@@ -172,7 +172,7 @@ Resources:
         From: 5000
         To: 5000
 
-  InboundRule02:
+  InboundAllowRule02:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
@@ -186,6 +186,69 @@ Resources:
       PortRange:
         From: 80
         To: 80
+
+  InboundDenyRule03:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Fn::GetAtt:
+          - MyAppVPC
+          - DefaultNetworkAcl
+      RuleNumber: 115
+      Protocol: 6
+      RuleAction: deny
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 81
+        To: 4999
+
+  OutboundAllowRule01:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Fn::GetAtt:
+          - MyAppVPC
+          - DefaultNetworkAcl
+      RuleNumber: 105
+      Protocol: 6
+      RuleAction: allow
+      Egress: true
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 5000
+        To: 5000
+
+  OutboundAllowRule02:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Fn::GetAtt:
+          - MyAppVPC
+          - DefaultNetworkAcl
+      RuleNumber: 110
+      Protocol: 6
+      RuleAction: allow
+      Egress: true
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 80
+        To: 80
+
+  OutboundAllowRule03:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Fn::GetAtt:
+          - MyAppVPC
+          - DefaultNetworkAcl
+      RuleNumber: 115
+      Protocol: 6
+      RuleAction: deny
+      Egress: true
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 81
+        To: 4999
 
 # ----------------------------------- BASTIAN, WEB-SERVER SECURITY GROUPS ---------------------------------
   OnlyBashSecurityGroup:

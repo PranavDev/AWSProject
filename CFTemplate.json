@@ -115,7 +115,7 @@
         }
     },
     "Resources": {
-        "InboundRule01": {
+        "InboundAllowRule01": {
             "Type": "AWS::EC2::NetworkAclEntry",
             "Properties": {
                 "NetworkAclId": {
@@ -134,7 +134,7 @@
                 }
             }
         },
-        "InboundRule02": {
+        "InboundAllowRule02": {
             "Type": "AWS::EC2::NetworkAclEntry",
             "Properties": {
                 "NetworkAclId": {
@@ -150,6 +150,85 @@
                 "PortRange": {
                     "From": 80,
                     "To": 80
+                }
+            }
+        },
+        "InboundDenyRule03": {
+            "Type": "AWS::EC2::NetworkAclEntry",
+            "Properties": {
+                "NetworkAclId": {
+                    "Fn::GetAtt": [
+                        "MyAppVPC",
+                        "DefaultNetworkAcl"
+                    ]
+                },
+                "RuleNumber": 115,
+                "Protocol": 6,
+                "RuleAction": "deny",
+                "CidrBlock": "0.0.0.0/0",
+                "PortRange": {
+                    "From": 81,
+                    "To": 4999
+                }
+            }
+        },
+        "OutboundAllowRule01": {
+            "Type": "AWS::EC2::NetworkAclEntry",
+            "Properties": {
+                "NetworkAclId": {
+                    "Fn::GetAtt": [
+                        "MyAppVPC",
+                        "DefaultNetworkAcl"
+                    ]
+                },
+                "RuleNumber": 105,
+                "Protocol": 6,
+                "RuleAction": "allow",
+                "Egress": true,
+                "CidrBlock": "0.0.0.0/0",
+                "PortRange": {
+                    "From": 5000,
+                    "To": 5000
+                }
+            }
+        },
+        "OutboundAllowRule02": {
+            "Type": "AWS::EC2::NetworkAclEntry",
+            "Properties": {
+                "NetworkAclId": {
+                    "Fn::GetAtt": [
+                        "MyAppVPC",
+                        "DefaultNetworkAcl"
+                    ]
+                },
+                "RuleNumber": 110,
+                "Protocol": 6,
+                "RuleAction": "allow",
+                "Egress": true,
+                "CidrBlock": "0.0.0.0/0",
+                "PortRange": {
+                    "From": 80,
+                    "To": 80
+                }
+            }
+        },
+        "OutboundAllowRule03": {
+            "Type": "AWS::EC2::NetworkAclEntry",
+            "Properties": {
+                "NetworkAclId": {
+                    "Fn::GetAtt": [
+                        "MyAppVPC",
+                        "DefaultNetworkAcl"
+                    ]
+                },
+                "RuleNumber": 115,
+                "Protocol": 6,
+                "RuleAction": "deny",
+                "Egress": true,
+                "CidrBlock": "0.0.0.0/0",
+                "PortRange": {
+                    "From": 81,
+                    "To": 4999
                 }
             }
         },
@@ -444,6 +523,72 @@
                 }
             }
         },
+        "NatGateway1EIP": {
+            "Type": "AWS::EC2::EIP",
+            "DependsOn": "MyAppVPCGatewayAtt",
+            "Properties": {
+                "Domain": "vpc",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyAppEIP01"
+                    }
+                ]
+            }
+        },
+        "NatGateway2EIP": {
+            "Type": "AWS::EC2::EIP",
+            "DependsOn": "MyAppVPCGatewayAtt",
+            "Properties": {
+                "Domain": "vpc",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyAppEIP02"
+                    }
+                ]
+            }
+        },
+        "NatGateway1": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "NatGateway1EIP",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "MyAppPublicSubnet1"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyAppNATGW01"
+                    }
+                ]
+            }
+        },
+        "NatGateway2": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "NatGateway2EIP",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "MyAppPublicSubnet2"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyAppNATGW02"
+                    }
+                ]
+            }
+        },
         "MyAppPublicRouteTable": {
             "Type": "AWS::EC2::RouteTable",
             "Properties": {
@@ -493,6 +638,58 @@
                 }
             }
         },
+        "MyAppPrivateRouteTable01": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "MyAppVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyApp-Private-RouteTable-01"
+                    }
+                ]
+            }
+        },
+        "MyAppPrivateRouteTable02": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "MyAppVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyApp-Private-RouteTable-02"
+                    }
+                ]
+            }
+        },
+        "MyAppPrivateRoute01": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyAppPrivateRouteTable01"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NatGateway1"
+                }
+            }
+        },
+        "MyAppPrivateRoute02": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MyAppPrivateRouteTable02"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NatGateway2"
+                }
+            }
+        },
         "PrivateSubnet1RouteTableAssociation": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
@@ -500,7 +697,7 @@
                     "Ref": "MyAppPrivateSubnet1"
                 },
                 "RouteTableId": {
-                    "Ref": "MyAppPublicRouteTable"
+                    "Ref": "MyAppPrivateRouteTable01"
                 }
             }
         },
@@ -511,7 +708,7 @@
                     "Ref": "MyAppPrivateSubnet3"
                 },
                 "RouteTableId": {
-                    "Ref": "MyAppPublicRouteTable"
+                    "Ref": "MyAppPrivateRouteTable02"
                 }
             }
         },
@@ -644,11 +841,6 @@
                         ]
                     }
                 },
-                "TargetGroupARNs": [
-                    {
-                        "Ref": "MyAppALBTG"
-                    }
-                ],
                 "MetricsCollection": [
                     {
                         "Granularity": "1Minute",
@@ -696,11 +888,6 @@
                         ]
                     }
                 },
-                "TargetGroupARNs": [
-                    {
-                        "Ref": "MyAppALBTG"
-                    }
-                ],
                 "MetricsCollection": [
                     {
                         "Granularity": "1Minute",
@@ -851,26 +1038,6 @@
                 "DBSubnetGroupDescription": "Subnet Group 01 for RDS-MySQL database",
                 "SubnetIds": [
                     {
-                        "Ref": "MyAppPrivateSubnet1"
-                    },
-                    {
-                        "Ref": "MyAppPrivateSubnet3"
-                    }
-                ],
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": "MyApp-RDS-SubnetGroup01"
-                    }
-                ]
-            }
-        },
-        "MyAppDBSubnetGroup02": {
-            "Type": "AWS::RDS::DBSubnetGroup",
-            "Properties": {
-                "DBSubnetGroupDescription": "Subnet Group 02 for RDS-MySQL database",
-                "SubnetIds": [
-                    {
                         "Ref": "MyAppPrivateSubnet2"
                     },
                     {
@@ -880,7 +1047,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "MyApp-RDS-SubnetGroup02"
+                        "Value": "MyApp-RDS-SubnetGroup01"
                     }
                 ]
             }
@@ -932,7 +1099,7 @@
                 },
                 "MultiAZ": false,
                 "DBSubnetGroupName": {
-                    "Ref": "MyAppDBSubnetGroup02"
+                    "Ref": "MyAppDBSubnetGroup01"
                 },
                 "PubliclyAccessible": true,
                 "AllocatedStorage": "5",
@@ -1044,10 +1211,10 @@
                 "Type": "application",
                 "Subnets": [
                     {
-                        "Ref": "MyAppPrivateSubnet1"
+                        "Ref": "MyAppPublicSubnet1"
                     },
                     {
-                        "Ref": "MyAppPrivateSubnet3"
+                        "Ref": "MyAppPublicSubnet2"
                     }
                 ],
                 "SecurityGroups": [
@@ -1480,10 +1647,16 @@
         }
     },
     "Outputs": {
-        "MyWebServerSecGroup": {
+        "MyAppWebServerSecurityGroup": {
             "Description": "Reference to the created WebServerSecurityGroup",
             "Value": {
                 "Ref": "WebServerSecurityGroup"
+            }
+        },
+        "BashSecurityGroup": {
+            "Description": "Reference to the created BashSecurityGroup",
+            "Value": {
+                "Ref": "OnlyBashSecurityGroup"
             }
         },
         "MyAppIAMRole": {
@@ -1552,22 +1725,16 @@
                 "Ref": "MyAppPublicRouteTable"
             }
         },
-        "MyAppPublicRoute": {
-            "Description": "Reference to the Public Route Table",
+        "MyAppPrivateRouteTable01": {
+            "Description": "Reference to the Private Route Table 01",
             "Value": {
-                "Ref": "MyAppPublicRoute"
+                "Ref": "MyAppPrivateRouteTable01"
             }
         },
-        "PublicSubnet1RouteTableAssociation": {
-            "Description": "Reference to the Public Subnet 1 Route Table Assoc.",
+        "MyAppPrivateRouteTable02": {
+            "Description": "Reference to the Private Route Table 02",
             "Value": {
-                "Ref": "PublicSubnet1RouteTableAssociation"
-            }
-        },
-        "PublicSubnet2RouteTableAssociation": {
-            "Description": "Reference to the Public Subnet 2 Route Table Assoc.",
-            "Value": {
-                "Ref": "PublicSubnet2RouteTableAssociation"
+                "Ref": "MyAppPrivateRouteTable02"
             }
         },
         "MyAppDBSubnetGroup": {
@@ -1612,25 +1779,25 @@
                 "Ref": "MyAppASG04"
             }
         },
-        "MyRDS01": {
+        "MyAppRDS01": {
             "Description": "RDS-DB 01",
             "Value": {
                 "Ref": "MyAppDatabase01"
             }
         },
-        "MyRDS02": {
+        "MyAppRDS02": {
             "Description": "RDS-DB 02",
             "Value": {
                 "Ref": "MyAppDatabase02"
             }
         },
-        "ALB": {
+        "MyAppALB": {
             "Description": "MyApp-Netflix Application Load Balancer",
             "Value": {
                 "Ref": "MyAppALB"
             }
         },
-        "ALBUrl": {
+        "MyAppALBUrl": {
             "Description": "The URL of our Netflix-ALB",
             "Value": {
                 "Fn::GetAtt": [
@@ -1639,16 +1806,40 @@
                 ]
             }
         },
-        "ALBTargetGroup": {
+        "MyAppALBTargetGroup": {
             "Description": "MyApp-Netflix-ALB-TG",
             "Value": {
                 "Ref": "MyAppALBTG"
             }
         },
-        "ALBSG": {
+        "MyAppALBSG": {
             "Description": "Security group for the ALB",
             "Value": {
                 "Ref": "MyAppALBSecurityGroup"
+            }
+        },
+        "MyAppNATGW01": {
+            "Description": "NAT Gateway in Public Subnet 01 (us-east-1a)",
+            "Value": {
+                "Ref": "NatGateway1"
+            }
+        },
+        "MyAppNATGW02": {
+            "Description": "NAT Gateway in Public Subnet 02 (us-east-1b)",
+            "Value": {
+                "Ref": "NatGateway2"
+            }
+        },
+        "MyAppNATEIP1": {
+            "Description": "EIP for NAT Gateway in Public Subnet 01 (us-east-1a)",
+            "Value": {
+                "Ref": "NatGateway1EIP"
+            }
+        },
+        "MyAppNATEIP2": {
+            "Description": "EIP for NAT Gateway in Public Subnet 02 (us-east-1b)",
+            "Value": {
+                "Ref": "NatGateway2EIP"
             }
         },
         "MyAppBillingAlarm": {
@@ -1681,13 +1872,13 @@
                 "Ref": "MyAppCompositeAlarm"
             }
         },
-        "AccountHolder": {
+        "MyAppAccountHolder": {
             "Description": "Account Holder Name",
             "Value": {
                 "Ref": "AccountHolder"
             }
         },
-        "AccountHolderEmailID": {
+        "MyAppAccountHolderEmailID": {
             "Description": "Account Holder Email",
             "Value": {
                 "Ref": "AccHolderEmailID"
