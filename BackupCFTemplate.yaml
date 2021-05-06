@@ -149,7 +149,7 @@ Parameters:
   AccHolderEmailID:
     Type: String
     Description: The Account Holder's Email Address
-    Default: testuser@xyz.com
+    Default: testuser@gmail.com
     MinLength: 1
     MaxLength: 100
 # ----------------------------------------------------------------------------------------------------------------------
@@ -278,15 +278,15 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: !Ref 'SSHLocation'
+          CidrIp: !Ref 'VPCCIDR'
         - IpProtocol: tcp
           FromPort: 5000
           ToPort: 5000
-          CidrIp: !Ref 'SSHLocation'
+          CidrIp: !Ref 'VPCCIDR'
         - IpProtocol: tcp
           FromPort: 3306
           ToPort: 3306
-          CidrIp: !Ref 'SSHLocation'
+          CidrIp: !Ref 'VPCCIDR'
       Tags:
         - Key: Name
           Value: MyApp-WebServerSecurityGroup

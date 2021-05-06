@@ -58,7 +58,7 @@
             "Type": "String",
             "MinLength": 9,
             "MaxLength": 18,
-            "Default": "0.0.0.0/0",
+            "Default": "71.232.145.136/32",
             "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
             "ConstraintDescription": "Must be of a valid IP CIDR range of the form x.x.x.x/x."
         },
@@ -109,7 +109,7 @@
         "AccHolderEmailID": {
             "Type": "String",
             "Description": "The Account Holder's Email Address",
-            "Default": "testuser@xyz.com",
+            "Default": "testuser@gmail.com",
             "MinLength": 1,
             "MaxLength": 100
         }
@@ -276,7 +276,7 @@
                         "FromPort": 80,
                         "ToPort": 80,
                         "CidrIp": {
-                            "Ref": "SSHLocation"
+                            "Ref": "VPCCIDR"
                         }
                     },
                     {
@@ -284,7 +284,7 @@
                         "FromPort": 5000,
                         "ToPort": 5000,
                         "CidrIp": {
-                            "Ref": "SSHLocation"
+                            "Ref": "VPCCIDR"
                         }
                     },
                     {
@@ -292,7 +292,7 @@
                         "FromPort": 3306,
                         "ToPort": 3306,
                         "CidrIp": {
-                            "Ref": "SSHLocation"
+                            "Ref": "VPCCIDR"
                         }
                     }
                 ],
