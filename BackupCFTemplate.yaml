@@ -906,6 +906,32 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref 'MyAppALBTG'
 
+# -------------------------------------------------- ALIAS Resource Record ---------------------------------------------
+  MyAppHostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: 'My hosted zone for streamnetlix.com'
+      Name: streamnetflix.com
+      VPCs:
+        - VPCId: !Ref 'MyAppVPC'
+          VPCRegion: 'us-east-1'
+      HostedZoneTags:
+        - Key: Name
+          Value: MyAppHostedZone
+
+  MyAppDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: streamnetflix.com.
+      Comment: Zone apex alias targeted to MyApp-ALB.
+      RecordSets:
+        - Name: myapp.streamnetflix.com.
+          Type: A
+          AliasTarget:
+            HostedZoneId: !GetAtt 'MyAppALB.CanonicalHostedZoneID'
+            DNSName: !GetAtt 'MyAppALB.DNSName'
+
 # -------------------------------------------------- S3 Storage Bucket -------------------------------------------------
   MyAppS3Bucket:
     Type: AWS::S3::Bucket
@@ -1239,6 +1265,10 @@ Outputs:
   MyAppALBUrl:
     Description: The URL of our Netflix-ALB
     Value: !GetAtt MyAppALB.DNSName
+
+  MyAppDNS:
+    Description: The DNS of our Netflix App
+    Value: !Ref 'MyAppDNS'
 
   MyAppALBTargetGroup:
     Description: MyApp-Netflix-ALB-TG

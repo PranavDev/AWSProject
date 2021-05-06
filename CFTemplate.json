@@ -1289,6 +1289,56 @@
                 ]
             }
         },
+        "MyAppHostedZone": {
+            "Type": "AWS::Route53::HostedZone",
+            "Properties": {
+                "HostedZoneConfig": {
+                    "Comment": "My hosted zone for streamnetlix.com"
+                },
+                "Name": "streamnetflix.com",
+                "VPCs": [
+                    {
+                        "VPCId": {
+                            "Ref": "MyAppVPC"
+                        },
+                        "VPCRegion": "us-east-1"
+                    }
+                ],
+                "HostedZoneTags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MyAppHostedZone"
+                    }
+                ]
+            }
+        },
+        "MyAppDNS": {
+            "Type": "AWS::Route53::RecordSetGroup",
+            "Properties": {
+                "HostedZoneName": "streamnetflix.com.",
+                "Comment": "Zone apex alias targeted to MyApp-ALB.",
+                "RecordSets": [
+                    {
+                        "Name": "myapp.streamnetflix.com.",
+                        "Type": "A",
+                        "AliasTarget": {
+                            "HostedZoneId": {
+                                "Fn::GetAtt": [
+                                    "MyAppALB",
+                                    "CanonicalHostedZoneID"
+                                ]
+                            },
+                            "DNSName": {
+                                "Fn::GetAtt": [
+                                    "MyAppALB",
+                                    "DNSName"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
         "MyAppS3Bucket": {
             "Type": "AWS::S3::Bucket",
             "DeletionPolicy": "Delete",
@@ -1810,6 +1860,12 @@
                     "MyAppALB",
                     "DNSName"
                 ]
+            }
+        },
+        "MyAppDNS": {
+            "Description": "The DNS of our Netflix App",
+            "Value": {
+                "Ref": "MyAppDNS"
             }
         },
         "MyAppALBTargetGroup": {
